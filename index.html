@@ -1,0 +1,2231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portfolio Segmentation Calculator | WGU</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* =========================================================================
+   WGU Design System tokens (extracted from colors_and_type.css)
+   Hard rules: WGU Blue (#002855) appears on every asset; never tint brand colors;
+   Jost substitutes for Futura PT (production should swap in licensed Futura PT).
+   ========================================================================= */
+:root {
+  --wgu-midnight:    #001731;
+  --wgu-blue:        #002855;
+  --wgu-blue-deep:   #003057;
+  --wgu-medium-blue: #0070F0;
+  --wgu-sky-blue:    #46B1EF;
+  --wgu-lime:        #97E152;
+  --wgu-light-blue:  #EEF6F9;
+  --wgu-light-grey:  #F1F1F1;
+  --wgu-grey:        #A7A7A7;
+  --wgu-white:       #FFFFFF;
+
+  --fg-1: var(--wgu-blue);
+  --fg-2: #264468;
+  --fg-3: var(--wgu-grey);
+  --fg-on-dark: var(--wgu-white);
+  --fg-link: var(--wgu-medium-blue);
+
+  --gradient-medium-blue: linear-gradient(135deg, #002855 0%, #0070F0 100%);
+  --gradient-midnight:    linear-gradient(180deg, #001731 0%, #002855 100%);
+
+  --font-display: 'Jost', 'Futura PT', 'Trebuchet MS', Arial, sans-serif;
+  --font-body:    'Jost', 'Futura PT', Arial, sans-serif;
+
+  --w-light: 300; --w-book: 400; --w-medium: 500; --w-heavy: 800;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 23, 49, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 23, 49, 0.10);
+  --shadow-lg: 0 12px 32px rgba(0, 23, 49, 0.14);
+  --shadow-focus: 0 0 0 3px rgba(0, 112, 240, 0.35);
+
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  --border-thin: 1px solid rgba(0, 40, 85, 0.12);
+  --divider:     1px solid var(--wgu-light-grey);
+
+  --ease-standard: cubic-bezier(0.2, 0.0, 0.2, 1);
+  --ease-emphasis: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 120ms; --dur-base: 220ms; --dur-slow: 420ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  font-weight: var(--w-book);
+  background: var(--wgu-light-blue);
+  color: var(--fg-1);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4 { margin: 0; font-family: var(--font-display); font-weight: var(--w-heavy); color: var(--fg-1); }
+button, input, select { font-family: inherit; font-size: inherit; }
+
+.eyebrow {
+  font-family: var(--font-display);
+  font-weight: var(--w-heavy);
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wgu-medium-blue);
+}
+
+/* =========================================================================
+   Header — Medium Blue gradient (per brand guide: hot CTA / quote moments)
+   Wordmark inline as <img>, never altered.
+   ========================================================================= */
+.site-header {
+  background: var(--gradient-medium-blue);
+  color: var(--fg-on-dark);
+  padding: var(--space-6) 0 var(--space-7);
+  border-bottom: 4px solid var(--wgu-lime);
+}
+.container { max-width: 1280px; margin: 0 auto; padding: 0 var(--space-5); }
+.header-inner { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
+.wordmark {
+  height: 64px; width: auto; display: block;
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .wordmark { height: 48px; }
+}
+.header-text { min-width: 0; flex: 1; }
+.header-text .eyebrow { color: rgba(255,255,255,0.85); }
+.site-header h1 {
+  font-size: 32px; line-height: 1.05;
+  font-weight: var(--w-heavy); letter-spacing: -0.01em;
+  color: var(--fg-on-dark); margin-top: var(--space-1);
+}
+.site-header p {
+  font-size: 16px; line-height: 1.4;
+  color: rgba(255,255,255,0.85);
+  margin: var(--space-2) 0 0; max-width: 640px;
+}
+
+/* =========================================================================
+   Layout
+   ========================================================================= */
+.main-wrap { padding: var(--space-6) 0 var(--space-8); }
+
+.tabs {
+  display: flex; flex-wrap: wrap; gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+.tab-btn {
+  padding: 10px 18px; font-size: 14px; font-weight: var(--w-medium);
+  background: var(--wgu-white); border: var(--border-thin); color: var(--fg-1);
+  border-radius: var(--radius-pill); cursor: pointer;
+  transition: all var(--dur-base) var(--ease-standard);
+  font-family: var(--font-body);
+  letter-spacing: 0.01em;
+}
+.tab-btn:hover { background: var(--wgu-light-blue); border-color: var(--wgu-medium-blue); }
+.tab-btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.tab-btn.active {
+  background: var(--wgu-blue); color: var(--fg-on-dark);
+  border-color: var(--wgu-blue);
+  box-shadow: var(--shadow-md);
+}
+
+.layout { display: grid; grid-template-columns: 1fr; gap: var(--space-5); }
+@media (min-width: 1024px) {
+  .layout { grid-template-columns: 300px 1fr; }
+}
+
+/* =========================================================================
+   Controls panel
+   ========================================================================= */
+.controls {
+  background: var(--wgu-white);
+  border: var(--border-thin);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+@media (min-width: 1024px) {
+  .controls { position: sticky; top: var(--space-4); max-height: calc(100vh - 32px); overflow-y: auto; }
+}
+.controls > .eyebrow { margin-bottom: var(--space-4); display: block; }
+
+.ctrl-group { margin-bottom: var(--space-5); }
+.ctrl-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+.ctrl-label { font-size: 14px; font-weight: var(--w-medium); color: var(--fg-1); }
+
+/* Number input that pairs with each slider */
+.ctrl-num-wrap {
+  position: relative; display: inline-flex; align-items: center;
+}
+.ctrl-num {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: var(--w-heavy);
+  color: var(--wgu-blue);
+  border: 1px solid rgba(0, 40, 85, 0.18);
+  background: var(--wgu-white);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  width: 78px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  -moz-appearance: textfield;
+  transition: border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
+}
+.ctrl-num::-webkit-outer-spin-button,
+.ctrl-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.ctrl-num:focus { border-color: var(--wgu-medium-blue); box-shadow: var(--shadow-focus); }
+.ctrl-num:disabled { color: var(--fg-3); background: var(--wgu-light-grey); cursor: not-allowed; opacity: 0.7; }
+.ctrl-num-wrap.has-suffix .ctrl-num { padding-right: 22px; width: 86px; }
+.ctrl-num-suffix {
+  position: absolute; right: 10px;
+  font-size: 14px; font-weight: var(--w-medium); color: var(--fg-3);
+  pointer-events: none;
+  font-family: var(--font-display);
+}
+.ctrl-num-wrap.has-suffix .ctrl-num:disabled + .ctrl-num-suffix { color: var(--fg-3); }
+.range-bounds {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--fg-3); margin-top: var(--space-1);
+  font-weight: var(--w-medium);
+  letter-spacing: 0.04em;
+}
+.ctrl-hint { font-size: 12px; color: var(--fg-2); margin: var(--space-1) 0 0; line-height: 1.4; }
+
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 6px; border-radius: var(--radius-pill);
+  background: var(--wgu-light-grey); outline: none; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  height: 22px; width: 22px; border-radius: 50%;
+  background: var(--wgu-medium-blue); border: 3px solid var(--wgu-white);
+  box-shadow: var(--shadow-md);
+  cursor: pointer; transition: transform var(--dur-fast) var(--ease-standard);
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+input[type="range"]::-moz-range-thumb {
+  height: 22px; width: 22px; border-radius: 50%;
+  background: var(--wgu-medium-blue); border: 3px solid var(--wgu-white);
+  box-shadow: var(--shadow-md); cursor: pointer;
+}
+input[type="range"]:focus-visible { box-shadow: var(--shadow-focus); }
+
+.ctrl-growth-group { padding-top: var(--space-3); border-top: var(--divider); }
+.ctrl-growth-group .eyebrow { display: block; margin-bottom: var(--space-1); }
+.growth-grid { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-2); }
+.growth-row {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: 8px 10px; border-radius: var(--radius-md);
+  border: var(--border-thin); background: var(--wgu-white);
+}
+.growth-tag {
+  font-family: var(--font-display);
+  font-weight: var(--w-heavy); font-size: 12px;
+  letter-spacing: 0.06em;
+  padding: 3px 8px; border-radius: var(--radius-pill);
+  color: var(--fg-on-dark);
+  flex-shrink: 0;
+}
+.growth-row.growth-ap .growth-tag { background: var(--wgu-blue); }
+.growth-row.growth-gp .growth-tag { background: var(--wgu-medium-blue); }
+.growth-row.growth-mp .growth-tag { background: var(--wgu-sky-blue); color: var(--wgu-blue); }
+.growth-row.growth-wp .growth-tag { background: var(--wgu-light-grey); color: var(--wgu-blue); }
+.growth-name {
+  flex: 1; font-size: 13px; font-weight: var(--w-medium); color: var(--fg-2);
+}
+.growth-row .ctrl-num { width: 64px; padding: 4px 6px; font-size: 14px; }
+.growth-row .ctrl-num-wrap.has-suffix .ctrl-num { padding-right: 18px; width: 70px; }
+.growth-row .ctrl-num-suffix { font-size: 12px; right: 8px; }
+
+.btn-reset {
+  width: 100%; margin-top: var(--space-2);
+  padding: 10px var(--space-4);
+  font-size: 14px; font-weight: var(--w-medium); color: var(--wgu-blue);
+  background: var(--wgu-light-blue); border: var(--border-thin);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all var(--dur-base) var(--ease-standard);
+  letter-spacing: 0.01em;
+}
+.btn-reset:hover { background: var(--wgu-blue); color: var(--fg-on-dark); border-color: var(--wgu-blue); }
+.btn-reset:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+
+.divider { margin: var(--space-5) 0 0; padding-top: var(--space-4); border-top: var(--divider); }
+
+.input-text, .input-select {
+  width: 100%; padding: 10px var(--space-3); font-size: 14px;
+  border: var(--border-thin); border-radius: var(--radius-md);
+  background: var(--wgu-white); color: var(--fg-1); outline: none;
+  font-family: var(--font-body);
+  transition: border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
+}
+.input-text:focus, .input-select:focus {
+  border-color: var(--wgu-medium-blue);
+  box-shadow: var(--shadow-focus);
+}
+.mt-4 { margin-top: var(--space-4); }
+.controls .eyebrow { margin-bottom: var(--space-2); display: block; }
+
+/* =========================================================================
+   Main content
+   ========================================================================= */
+.main { display: flex; flex-direction: column; gap: var(--space-5); min-width: 0; }
+
+.kpis {
+  display: grid; gap: var(--space-4);
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 768px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
+.kpi {
+  background: var(--wgu-white); border: var(--border-thin);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--dur-base) var(--ease-standard);
+}
+.kpi:hover { box-shadow: var(--shadow-md); }
+.kpi-label {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: var(--w-heavy); color: var(--wgu-medium-blue);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: 28px; font-weight: var(--w-heavy); color: var(--wgu-blue);
+  margin-top: var(--space-1);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.kpi-sub {
+  font-size: 12px; color: var(--fg-2); margin-top: var(--space-1);
+  font-weight: var(--w-medium);
+}
+
+.toolbar {
+  display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--wgu-white);
+  border: var(--border-thin);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.toolbar-left { font-size: 14px; color: var(--fg-2); font-weight: var(--w-medium); }
+.toolbar-left strong { color: var(--wgu-blue); font-weight: var(--w-heavy); font-variant-numeric: tabular-nums; }
+.toolbar-right { display: flex; align-items: center; gap: var(--space-2); }
+.toolbar-right .input-select { width: auto; padding: 8px var(--space-3); font-size: 14px; }
+
+/* =========================================================================
+   EP roll-up banner — full-width summary of AP + GP + MP (everything not WP)
+   Uses the Midnight gradient (deepest brand surface) to signal it as the parent.
+   ========================================================================= */
+.ep-rollup {
+  background: var(--gradient-midnight);
+  color: var(--fg-on-dark);
+  border-radius: var(--radius-md);
+  padding: var(--space-5) var(--space-6);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-5); flex-wrap: wrap;
+  box-shadow: var(--shadow-md);
+  border-left: 4px solid var(--wgu-lime);
+}
+.ep-rollup-left { min-width: 0; }
+.ep-rollup .eyebrow { color: rgba(255,255,255,0.85); display: block; }
+.ep-rollup-title {
+  font-family: var(--font-display);
+  font-size: 36px; font-weight: var(--w-heavy);
+  color: var(--fg-on-dark); line-height: 1; margin-top: var(--space-1);
+  letter-spacing: -0.02em;
+}
+.ep-rollup-sub {
+  font-size: 12px; color: rgba(255,255,255,0.75);
+  font-weight: var(--w-medium); margin-top: var(--space-1);
+  letter-spacing: 0.04em;
+}
+.ep-rollup-stats {
+  display: flex; gap: var(--space-6); flex-wrap: wrap;
+}
+.ep-rollup-stat { text-align: right; min-width: 90px; }
+.ep-rollup-stat-label {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: var(--w-heavy);
+  color: rgba(255,255,255,0.7);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.ep-rollup-stat-value {
+  font-family: var(--font-display);
+  font-size: 28px; font-weight: var(--w-heavy);
+  color: var(--fg-on-dark);
+  font-variant-numeric: tabular-nums;
+  line-height: 1; margin-top: var(--space-1);
+  letter-spacing: -0.01em;
+}
+.ep-rollup-stat-growth .ep-rollup-stat-value { color: var(--wgu-lime); }
+
+/* =========================================================================
+   Portfolio panels — solid WGU palette colors only (no tinting per §8)
+   AP = WGU Blue (deepest, top performers)
+   GP = Medium Blue (CTA-bright, growing)
+   MP = Sky Blue (lighter accent, mature)
+   WP = Light Grey (neutral, watching)
+   ========================================================================= */
+.portfolio-grid {
+  display: grid; gap: var(--space-5);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) { .portfolio-grid { grid-template-columns: 1fr 1fr; } }
+
+.portfolio-panel {
+  background: var(--wgu-white);
+  border: var(--border-thin);
+  border-radius: var(--radius-md);
+  overflow: hidden; display: flex; flex-direction: column;
+  max-height: 60vh;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--dur-base) var(--ease-standard);
+}
+.portfolio-panel:hover { box-shadow: var(--shadow-md); }
+
+.portfolio-header {
+  padding: var(--space-4) var(--space-5);
+  display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3);
+}
+.portfolio-header .eyebrow { color: rgba(255,255,255,0.8); display: block; margin-bottom: var(--space-1); }
+.portfolio-header h3 {
+  font-size: 22px; line-height: 1; letter-spacing: -0.01em;
+  color: var(--fg-on-dark);
+}
+.portfolio-quad {
+  font-size: 11px; color: rgba(255,255,255,0.75);
+  margin-top: 4px; font-weight: var(--w-medium); letter-spacing: 0.04em;
+}
+.portfolio-header-right { text-align: right; flex-shrink: 0; }
+.portfolio-count {
+  font-family: var(--font-display);
+  font-size: 28px; font-weight: var(--w-heavy);
+  font-variant-numeric: tabular-nums; line-height: 1;
+  color: var(--fg-on-dark);
+}
+.portfolio-total {
+  font-size: 11px; font-variant-numeric: tabular-nums; margin-top: var(--space-1);
+  color: rgba(255,255,255,0.85);
+  font-weight: var(--w-medium);
+}
+
+/* AP — WGU Blue (was EP, renamed) */
+.portfolio-header.ap { background: var(--wgu-blue); }
+/* GP — Medium Blue */
+.portfolio-header.gp { background: var(--wgu-medium-blue); }
+/* MP — Sky Blue (use Midnight text — Sky Blue + dark text is allowed) */
+.portfolio-header.mp { background: var(--wgu-sky-blue); }
+.portfolio-header.mp .eyebrow,
+.portfolio-header.mp h3,
+.portfolio-header.mp .portfolio-quad,
+.portfolio-header.mp .portfolio-count,
+.portfolio-header.mp .portfolio-total {
+  color: var(--wgu-blue);
+}
+.portfolio-header.mp .eyebrow { color: var(--wgu-blue-deep); }
+.portfolio-header.mp .portfolio-quad,
+.portfolio-header.mp .portfolio-total { color: rgba(0,40,85,0.75); }
+/* WP — Light Grey neutral (Midnight text) */
+.portfolio-header.wp { background: var(--wgu-light-grey); border-bottom: 1px solid rgba(0,40,85,0.08); }
+.portfolio-header.wp .eyebrow,
+.portfolio-header.wp h3,
+.portfolio-header.wp .portfolio-quad,
+.portfolio-header.wp .portfolio-count,
+.portfolio-header.wp .portfolio-total {
+  color: var(--wgu-blue);
+}
+.portfolio-header.wp .eyebrow { color: var(--wgu-medium-blue); }
+.portfolio-header.wp .portfolio-quad,
+.portfolio-header.wp .portfolio-total { color: var(--fg-2); }
+
+.acct-list { flex: 1; overflow-y: auto; padding: var(--space-3); background: var(--wgu-white); }
+.acct-list::-webkit-scrollbar { width: 8px; }
+.acct-list::-webkit-scrollbar-track { background: transparent; }
+.acct-list::-webkit-scrollbar-thumb { background: rgba(0,40,85,0.15); border-radius: 4px; }
+.acct-list::-webkit-scrollbar-thumb:hover { background: rgba(0,40,85,0.30); }
+
+.acct-card {
+  background: var(--wgu-white);
+  border: var(--border-thin);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+  transition: all var(--dur-base) var(--ease-emphasis);
+  animation: fadeIn 220ms var(--ease-standard);
+}
+.acct-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--wgu-medium-blue);
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.acct-top {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3);
+}
+.acct-name-row {
+  display: flex; align-items: center; gap: var(--space-2); min-width: 0;
+}
+.acct-name {
+  font-weight: var(--w-medium); font-size: 14px; color: var(--wgu-blue);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--font-body);
+  min-width: 0; flex: 1;
+}
+.acct-meta {
+  font-size: 11px; color: var(--fg-2);
+  display: flex; align-items: center; gap: 6px; margin-top: var(--space-1);
+  font-weight: var(--w-medium);
+}
+.acct-meta .dot { color: rgba(0,40,85,0.25); }
+.acct-new-badge {
+  flex-shrink: 0;
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 9px; font-weight: var(--w-heavy);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--wgu-white);
+  background: var(--wgu-blue-deep);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  line-height: 1.4;
+}
+.acct-target { text-align: right; flex-shrink: 0; }
+.acct-target-value {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: var(--w-heavy); color: var(--wgu-blue);
+  font-variant-numeric: tabular-nums; line-height: 1;
+  letter-spacing: -0.01em;
+}
+.acct-target-label {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--wgu-medium-blue);
+  font-weight: var(--w-heavy); margin-top: 2px;
+}
+.acct-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: var(--space-2); padding-top: var(--space-2);
+  border-top: var(--divider); font-size: 12px;
+}
+.acct-fy { color: var(--fg-2); font-weight: var(--w-medium); }
+.acct-fy strong { color: var(--wgu-blue); font-weight: var(--w-heavy); font-variant-numeric: tabular-nums; }
+.acct-fy .arrow { margin: 0 6px; color: rgba(0,40,85,0.30); }
+.acct-velocity {
+  font-weight: var(--w-heavy); font-variant-numeric: tabular-nums;
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+/* Velocity uses an approved palette only (no red/green outside palette).
+   We use Medium Blue / Lime / Grey to stay on-brand. */
+.vel-pos { color: var(--wgu-medium-blue); }
+.vel-neg { color: var(--fg-3); }
+.vel-neutral { color: var(--fg-3); }
+.vel-new { color: var(--wgu-blue-deep); }
+.min-w-0 { min-width: 0; flex: 1; }
+
+.empty {
+  text-align: center; color: var(--fg-3);
+  font-size: 14px; padding: var(--space-7) 0;
+  font-style: italic;
+}
+
+.footnote {
+  font-size: 12px; color: var(--fg-2); padding-top: var(--space-3);
+  line-height: 1.6;
+  background: var(--wgu-white);
+  border: var(--border-thin);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+.footnote strong { color: var(--wgu-blue); font-weight: var(--w-heavy); }
+.footnote code {
+  font-family: 'Consolas', 'Monaco', monospace; font-size: 12px;
+  background: var(--wgu-light-blue);
+  color: var(--wgu-blue);
+  padding: 1px 6px; border-radius: var(--radius-sm);
+  font-weight: var(--w-medium);
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <div class="header-inner">
+      <img class="wordmark" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB9AAAAOOCAYAAABY84ntAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAQm8AAEJvAVEo4b0AALNzSURBVHhe7N0H2CZXWT/gzKQHEgi9KL0jiErzLyhN6SBKEQRBEEIVkARIIL03Sgg1SJXeIVQpUqR36b1ID4SQkJ6Z/2/2nMS03ey3+31vmbnv6zrXc57ZsOw385yZeb/znpktAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABG161u9f8BJm56qN1NvSgAAAAASUVORK5CYII=" alt="WGU" width="141" height="64" />
+      <div class="header-text">
+        <span class="eyebrow">B2B Strategy &middot; Portfolio Planning</span>
+        <h1>Portfolio Segmentation Calculator</h1>
+        <p>Adjust volume and velocity triggers, set FY27 growth, and watch accounts reshuffle live across the four portfolios.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container main-wrap">
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="layout">
+
+    <aside class="controls" id="controlsPanel">
+      <span class="eyebrow">Triggers &amp; Growth</span>
+
+      <div class="ctrl-group">
+        <div class="ctrl-row">
+          <label class="ctrl-label" for="volNum">Volume Trigger</label>
+          <div class="ctrl-num-wrap">
+            <input type="number" id="volNum" class="ctrl-num" min="0" max="200" step="1" inputmode="numeric" />
+          </div>
+        </div>
+        <input type="range" id="volSlider" min="0" max="200" step="1" />
+        <div class="range-bounds"><span>0</span><span>200</span></div>
+        <p class="ctrl-hint">FY26 EOY above this &rarr; High Volume</p>
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-row">
+          <label class="ctrl-label" for="velNum">Velocity Trigger</label>
+          <div class="ctrl-num-wrap has-suffix">
+            <input type="number" id="velNum" class="ctrl-num" min="0" max="50" step="1" inputmode="numeric" />
+            <span class="ctrl-num-suffix">%</span>
+          </div>
+        </div>
+        <input type="range" id="velSlider" min="0" max="50" step="1" />
+        <div class="range-bounds"><span>0%</span><span>50%</span></div>
+        <p class="ctrl-hint">YoY growth above this &rarr; High Velocity</p>
+      </div>
+
+      <div class="ctrl-group ctrl-growth-group">
+        <span class="eyebrow">Growth Rate per Portfolio</span>
+        <p class="ctrl-hint" style="margin-top:0; margin-bottom: var(--space-3);">FY27 Target = FY26 &times; (1 + Growth) for each portfolio.</p>
+        <div class="growth-grid">
+          <div class="growth-row growth-ap">
+            <span class="growth-tag">AP</span>
+            <span class="growth-name">Anchor</span>
+            <div class="ctrl-num-wrap has-suffix">
+              <input type="number" id="grAp" class="ctrl-num" min="0" max="50" step="1" inputmode="numeric" />
+              <span class="ctrl-num-suffix">%</span>
+            </div>
+          </div>
+          <div class="growth-row growth-gp">
+            <span class="growth-tag">GP</span>
+            <span class="growth-name">Growth</span>
+            <div class="ctrl-num-wrap has-suffix">
+              <input type="number" id="grGp" class="ctrl-num" min="0" max="50" step="1" inputmode="numeric" />
+              <span class="ctrl-num-suffix">%</span>
+            </div>
+          </div>
+          <div class="growth-row growth-mp">
+            <span class="growth-tag">MP</span>
+            <span class="growth-name">Mature</span>
+            <div class="ctrl-num-wrap has-suffix">
+              <input type="number" id="grMp" class="ctrl-num" min="0" max="50" step="1" inputmode="numeric" />
+              <span class="ctrl-num-suffix">%</span>
+            </div>
+          </div>
+          <div class="growth-row growth-wp">
+            <span class="growth-tag">WP</span>
+            <span class="growth-name">Watching</span>
+            <div class="ctrl-num-wrap has-suffix">
+              <input type="number" id="grWp" class="ctrl-num" min="0" max="50" step="1" inputmode="numeric" />
+              <span class="ctrl-num-suffix">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-reset" id="resetBtn">Reset to defaults</button>
+
+      <div class="divider">
+        <span class="eyebrow">Search</span>
+        <input type="text" id="searchBox" class="input-text" placeholder="Account name..." />
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-label">Accounts</div>
+          <div class="kpi-value" id="kpiAccounts">0</div>
+          <div class="kpi-sub" id="kpiSplit">0 AP / 0 GP / 0 MP / 0 WP</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">FY26 Actuals</div>
+          <div class="kpi-value" id="kpiFy26">0</div>
+          <div class="kpi-sub">New Starts EOY</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">FY27 Target</div>
+          <div class="kpi-value" id="kpiFy27">0</div>
+          <div class="kpi-sub" id="kpiGrowth">+0% growth</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">EP Share</div>
+          <div class="kpi-value" id="kpiEpShare">0%</div>
+          <div class="kpi-sub">of FY26 volume</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="toolbar-left"><strong id="resultsCount">0</strong> accounts shown</div>
+        <div class="toolbar-right">
+          <span class="eyebrow" style="margin-right:8px">Sort</span>
+          <select id="sortBy" class="input-select">
+            <option value="vd">Velocity (high &rarr; low)</option>
+            <option value="va">Velocity (low &rarr; high)</option>
+            <option value="td">FY27 Target (high &rarr; low)</option>
+            <option value="ta">FY27 Target (low &rarr; high)</option>
+            <option value="na">Name (A &rarr; Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <section class="ep-rollup">
+        <div class="ep-rollup-left">
+          <span class="eyebrow">Executive Portfolio</span>
+          <h2 class="ep-rollup-title">EP</h2>
+          <div class="ep-rollup-sub">Roll-up of AP &middot; GP &middot; MP (everything except WP)</div>
+        </div>
+        <div class="ep-rollup-stats">
+          <div class="ep-rollup-stat">
+            <div class="ep-rollup-stat-label">Accounts</div>
+            <div class="ep-rollup-stat-value" id="epRollCount">0</div>
+          </div>
+          <div class="ep-rollup-stat">
+            <div class="ep-rollup-stat-label">FY26</div>
+            <div class="ep-rollup-stat-value" id="epRollFy26">0</div>
+          </div>
+          <div class="ep-rollup-stat">
+            <div class="ep-rollup-stat-label">FY27 Target</div>
+            <div class="ep-rollup-stat-value" id="epRollFy27">0</div>
+          </div>
+          <div class="ep-rollup-stat ep-rollup-stat-growth">
+            <div class="ep-rollup-stat-label">Avg Growth</div>
+            <div class="ep-rollup-stat-value" id="epRollGrowth">—</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="portfolio-grid">
+        <section class="portfolio-panel">
+          <header class="portfolio-header ap">
+            <div>
+              <span class="eyebrow">Anchor Portfolio</span>
+              <h3>AP</h3>
+              <div class="portfolio-quad">High Volume &middot; High Velocity</div>
+            </div>
+            <div class="portfolio-header-right">
+              <div class="portfolio-count" id="apCount">0</div>
+              <div class="portfolio-total" id="apTotal">0 FY27 target</div>
+            </div>
+          </header>
+          <div class="acct-list" id="apList"></div>
+        </section>
+
+        <section class="portfolio-panel">
+          <header class="portfolio-header gp">
+            <div>
+              <span class="eyebrow">Growth Portfolio</span>
+              <h3>GP</h3>
+              <div class="portfolio-quad">Low Volume &middot; High Velocity</div>
+            </div>
+            <div class="portfolio-header-right">
+              <div class="portfolio-count" id="gpCount">0</div>
+              <div class="portfolio-total" id="gpTotal">0 FY27 target</div>
+            </div>
+          </header>
+          <div class="acct-list" id="gpList"></div>
+        </section>
+
+        <section class="portfolio-panel">
+          <header class="portfolio-header mp">
+            <div>
+              <span class="eyebrow">Mature Portfolio</span>
+              <h3>MP</h3>
+              <div class="portfolio-quad">High Volume &middot; Low Velocity</div>
+            </div>
+            <div class="portfolio-header-right">
+              <div class="portfolio-count" id="mpCount">0</div>
+              <div class="portfolio-total" id="mpTotal">0 FY27 target</div>
+            </div>
+          </header>
+          <div class="acct-list" id="mpList"></div>
+        </section>
+
+        <section class="portfolio-panel">
+          <header class="portfolio-header wp">
+            <div>
+              <span class="eyebrow">Watching Portfolio</span>
+              <h3>WP</h3>
+              <div class="portfolio-quad">Low Volume &middot; Low Velocity</div>
+            </div>
+            <div class="portfolio-header-right">
+              <div class="portfolio-count" id="wpCount">0</div>
+              <div class="portfolio-total" id="wpTotal">0 FY27 target</div>
+            </div>
+          </header>
+          <div class="acct-list" id="wpList"></div>
+        </section>
+      </div>
+
+      <p class="footnote">
+        <strong>EP (Executive Portfolio)</strong> is the roll-up of AP + GP + MP. WP is excluded.<br>
+        <strong>AP</strong> = FY26 &gt; Volume Trigger AND velocity &gt; Velocity Trigger (High Volume + High Velocity).
+        <strong>GP</strong> = FY26 &le; Volume Trigger AND velocity &gt; Velocity Trigger (Low Volume + High Velocity).
+        <strong>MP</strong> = FY26 &gt; Volume Trigger AND velocity &le; Velocity Trigger (High Volume + Low Velocity).
+        <strong>WP</strong> = FY26 &le; Volume Trigger AND velocity &le; Velocity Trigger (Low Volume + Low Velocity).<br>
+        <strong>Velocity</strong> = (FY26 - FY25) / FY25.
+        <strong>New accounts</strong> (FY25 = 0, FY26 &gt; 0) are routed to <strong>GP</strong> automatically, regardless of volume.<br>
+        <strong>FY27 Target</strong> = <code>FY26 &times; (1 + Growth Rate)</code>, rounded to whole numbers.
+      </p>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const A = [
+  {"n":"Allen East Local School District (Ohio)","p":"K12 Partner","a":1.11,"b":11.0,"v":7.4},
+  {"n":"School in The Square","p":"K12 Partner","a":2.22,"b":15.0,"v":5.0},
+  {"n":"Harnett County Schools","p":"K12 Partner","a":3.33,"b":20.0,"v":4.2},
+  {"n":"Saber Healthcare Group, Llc.","p":"Healthcare","a":2.22,"b":11.0,"v":3.1405},
+  {"n":"Somerset Community College","p":"Transfer Partner","a":7.0,"b":32.0,"v":3.1143},
+  {"n":"ANN and Robert H. Lurie Children\u2019s Hospital of Chicago","p":"Healthcare","a":1.0,"b":5.0,"v":2.996},
+  {"n":"ProHealth Care (WI)","p":"Healthcare","a":1.11,"b":5.0,"v":2.6},
+  {"n":"Grand Rapids Public Schools","p":"K12 Partner","a":1.11,"b":5.0,"v":2.6},
+  {"n":"Bayer","p":"Corporate","a":1.11,"b":5.0,"v":2.6},
+  {"n":"Berkshire Community College","p":"Transfer Partner","a":1.0,"b":4.0,"v":2.6},
+  {"n":"Harps Food Stores","p":"Corporate","a":1.11,"b":5.0,"v":2.4811},
+  {"n":"E and J. Gallo Winery","p":"Corporate","a":1.11,"b":5.0,"v":2.4811},
+  {"n":"Holland America Group","p":"Corporate","a":1.11,"b":4.0,"v":2.2432},
+  {"n":"Haywood Community College","p":"Transfer Partner","a":3.0,"b":11.0,"v":2.2},
+  {"n":"Yakima Valley Memorial Hospital","p":"Healthcare","a":4.44,"b":15.0,"v":2.0},
+  {"n":"Champlain Valley Physicians Hospital","p":"Healthcare","a":4.44,"b":15.0,"v":2.0},
+  {"n":"Anthem Indiana","p":"Corporate","a":2.22,"b":8.0,"v":2.0},
+  {"n":"East Central Community College","p":"Transfer Partner","a":6.0,"b":20.0,"v":2.0},
+  {"n":"Morris Brown College","p":"Transfer Partner","a":3.0,"b":10.0,"v":1.8},
+  {"n":"Ivy Tech Community College - Madison","p":"Transfer Partner","a":3.0,"b":10.0,"v":1.8},
+  {"n":"Chicago Public Schools","p":"K12 Partner","a":54.62,"b":170.0,"v":1.7948},
+  {"n":"Dakota County Technical College","p":"Transfer Partner","a":4.0,"b":12.0,"v":1.7},
+  {"n":"Maysville Community and Technical College","p":"Transfer Partner","a":6.0,"b":18.0,"v":1.6},
+  {"n":"City Colleges of Chicago - Richard J. Daley","p":"Transfer Partner","a":11.0,"b":31.0,"v":1.5091},
+  {"n":"Silver Cross Health System","p":"Healthcare","a":5.44,"b":15.0,"v":1.4243},
+  {"n":"North Dakota State College of Science","p":"Transfer Partner","a":6.0,"b":16.0,"v":1.4},
+  {"n":"Nicolet Area Technical College (WI)","p":"Transfer Partner","a":3.0,"b":8.0,"v":1.4},
+  {"n":"Kern Family Health Care","p":"Healthcare","a":2.22,"b":6.0,"v":1.4},
+  {"n":"Kelly Education","p":"Corporate","a":2.22,"b":6.0,"v":1.4},
+  {"n":"York County Community College","p":"Transfer Partner","a":2.0,"b":6.0,"v":1.4},
+  {"n":"Columbia - Greene Community College","p":"Transfer Partner","a":2.0,"b":6.0,"v":1.4},
+  {"n":"Titan Security Group","p":"Corporate","a":1.11,"b":3.0,"v":1.4},
+  {"n":"Lumeris","p":"Corporate","a":1.11,"b":3.0,"v":1.4},
+  {"n":"DHR Health","p":"Healthcare","a":1.11,"b":3.0,"v":1.4},
+  {"n":"Chedraui USA","p":"Corporate","a":1.11,"b":3.0,"v":1.4},
+  {"n":"Adams Memorial Hospital and Health Network","p":"Healthcare","a":1.11,"b":3.0,"v":1.4},
+  {"n":"Big Y Foods","p":"Corporate","a":1.0,"b":3.0,"v":1.4},
+  {"n":"Logan Health","p":"Healthcare","a":4.44,"b":12.0,"v":1.3703},
+  {"n":"Metropolitan School District of Warren Township","p":"K12 Partner","a":2.22,"b":6.0,"v":1.3405},
+  {"n":"Rocket Companies","p":"Corporate","a":3.33,"b":9.0,"v":1.3207},
+  {"n":"Colorado Mountain College Foundation, Inc.","p":"Transfer Partner","a":13.0,"b":34.0,"v":1.3077},
+  {"n":"Tiffin City Schools","p":"K12 Partner","a":1.11,"b":3.0,"v":1.2811},
+  {"n":"Stanton Community School District","p":"K12 Partner","a":1.11,"b":3.0,"v":1.2811},
+  {"n":"City of Houston","p":"Corporate","a":9.77,"b":24.0,"v":1.1691},
+  {"n":"Southwestern Community College (IA)","p":"Transfer Partner","a":5.0,"b":12.0,"v":1.16},
+  {"n":"Spoon River College","p":"Transfer Partner","a":5.0,"b":12.0,"v":1.16},
+  {"n":"Tyler Technologies, Inc.","p":"Corporate","a":4.22,"b":11.0,"v":1.1469},
+  {"n":"Alpena Public Schools","p":"K12 Partner","a":4.44,"b":11.0,"v":1.1},
+  {"n":"Southeast Technical College","p":"Transfer Partner","a":7.0,"b":16.0,"v":1.0571},
+  {"n":"TRI - County Community College","p":"Transfer Partner","a":6.0,"b":14.0,"v":1.0},
+  {"n":"Genesis Health System (IA, IL)","p":"Healthcare","a":3.33,"b":8.0,"v":1.0},
+  {"n":"Deer Park Independent School District","p":"K12 Partner","a":3.33,"b":8.0,"v":1.0},
+  {"n":"Issaquah School District","p":"K12 Partner","a":15.54,"b":35.0,"v":0.9714},
+  {"n":"Copper Mountain Community College","p":"Transfer Partner","a":13.0,"b":28.0,"v":0.9385},
+  {"n":"Muskegon Community College","p":"Transfer Partner","a":13.0,"b":28.0,"v":0.9385},
+  {"n":"Independence School District","p":"K12 Partner","a":6.66,"b":15.0,"v":0.9207},
+  {"n":"College of The Florida Keys","p":"Transfer Partner","a":5.0,"b":11.0,"v":0.92},
+  {"n":"Hearst Health","p":"Corporate","a":39.85,"b":85.0,"v":0.9019},
+  {"n":"Riverside Health System","p":"Healthcare","a":2.11,"b":5.0,"v":0.8938},
+  {"n":"Columbia Basin Health Association","p":"Healthcare","a":2.11,"b":5.0,"v":0.8938},
+  {"n":"Metropolitan Community College - Kansas City","p":"Transfer Partner","a":75.0,"b":156.0,"v":0.872},
+  {"n":"Round Rock Independent School District","p":"K12 Partner","a":7.77,"b":17.0,"v":0.8687},
+  {"n":"Southwestern Community College (NC)","p":"Transfer Partner","a":9.0,"b":19.0,"v":0.8667},
+  {"n":"Gadsden State Community College","p":"Transfer Partner","a":17.0,"b":35.0,"v":0.8353},
+  {"n":"Hennepin County","p":"Healthcare","a":8.77,"b":18.0,"v":0.8075},
+  {"n":"Western Dakota Technical Institute","p":"Transfer Partner","a":6.0,"b":12.0,"v":0.8},
+  {"n":"Fremont City Schools","p":"K12 Partner","a":2.22,"b":5.0,"v":0.8},
+  {"n":"Brownsville Independent School District","p":"K12 Partner","a":2.22,"b":5.0,"v":0.8},
+  {"n":"County of Orange Human Resources Department","p":"Corporate","a":4.44,"b":9.0,"v":0.8},
+  {"n":"City Colleges of Chicago - Kennedy King College","p":"Transfer Partner","a":12.0,"b":24.0,"v":0.8},
+  {"n":"McHenry County College","p":"Transfer Partner","a":22.0,"b":44.0,"v":0.8},
+  {"n":"University of Maryland Medical System (UMMS)","p":"Healthcare","a":13.21,"b":27.0,"v":0.795},
+  {"n":"Advocate Aurora Health Inc.","p":"Healthcare","a":24.42,"b":49.0,"v":0.7946},
+  {"n":"Los Angeles Harbor College","p":"Transfer Partner","a":21.0,"b":42.0,"v":0.7714},
+  {"n":"Stride, Inc.","p":"K12 Partner","a":15.1,"b":30.0,"v":0.7555},
+  {"n":"ManTech International","p":"Corporate","a":12.21,"b":24.0,"v":0.7455},
+  {"n":"Ashland Community and Technical College System","p":"Transfer Partner","a":11.0,"b":22.0,"v":0.7455},
+  {"n":"Crown Equipment Corp.","p":"Corporate","a":10.77,"b":21.0,"v":0.7448},
+  {"n":"Waukesha County Technical College","p":"Transfer Partner","a":16.0,"b":31.0,"v":0.725},
+  {"n":"Lake Region State College","p":"Transfer Partner","a":7.0,"b":14.0,"v":0.7143},
+  {"n":"Casey's General Stores","p":"Corporate","a":4.44,"b":9.0,"v":0.7108},
+  {"n":"Sutter Health","p":"Healthcare","a":39.3,"b":75.0,"v":0.705},
+  {"n":"DaVita Inc.","p":"Healthcare","a":151.68,"b":286.0,"v":0.6968},
+  {"n":"Rowan - Salisbury School System","p":"K12 Partner","a":5.44,"b":11.0,"v":0.6897},
+  {"n":"Northwest Iowa Community College","p":"Transfer Partner","a":5.0,"b":10.0,"v":0.68},
+  {"n":"Kishwaukee College","p":"Transfer Partner","a":10.0,"b":19.0,"v":0.68},
+  {"n":"Isothermal Community College","p":"Transfer Partner","a":10.0,"b":19.0,"v":0.68},
+  {"n":"Hawkeye Community College","p":"Transfer Partner","a":10.0,"b":19.0,"v":0.68},
+  {"n":"Butler County Community College","p":"Transfer Partner","a":10.0,"b":19.0,"v":0.68},
+  {"n":"Evergreen Public Schools (WA)","p":"K12 Partner","a":5.55,"b":11.0,"v":0.68},
+  {"n":"Columbia Valley Community Health","p":"Healthcare","a":3.11,"b":6.0,"v":0.6707},
+  {"n":"Yakima School District","p":"K12 Partner","a":26.2,"b":49.0,"v":0.6676},
+  {"n":"Three Rivers College","p":"Transfer Partner","a":11.0,"b":20.0,"v":0.6364},
+  {"n":"Spokane Community College","p":"Transfer Partner","a":91.0,"b":166.0,"v":0.6352},
+  {"n":"Hopkinsville Community College","p":"Transfer Partner","a":17.0,"b":31.0,"v":0.6235},
+  {"n":"Jefferson Health","p":"Healthcare","a":34.3,"b":62.0,"v":0.6195},
+  {"n":"Amazon Web Services Data Center","p":"Corporate","a":51.06,"b":92.0,"v":0.6174},
+  {"n":"Sisters of Charity of Leavenworth Health System, Inc.","p":"Healthcare","a":3.33,"b":6.0,"v":0.6},
+  {"n":"NHTI - Concord's Community College","p":"Transfer Partner","a":6.0,"b":11.0,"v":0.6},
+  {"n":"College of The Desert","p":"Transfer Partner","a":27.0,"b":48.0,"v":0.6},
+  {"n":"Western Nebraska Community College","p":"Transfer Partner","a":12.0,"b":22.0,"v":0.6},
+  {"n":"Southeast Community College - NE","p":"Transfer Partner","a":21.0,"b":38.0,"v":0.6},
+  {"n":"Spartanburg Community College","p":"Transfer Partner","a":28.0,"b":50.0,"v":0.5857},
+  {"n":"Edmonds School District (WA)","p":"K12 Partner","a":20.87,"b":37.0,"v":0.5829},
+  {"n":"Prime Healthcare Services Inc.","p":"Healthcare","a":21.09,"b":37.0,"v":0.5789},
+  {"n":"Pima Community College","p":"Transfer Partner","a":84.0,"b":147.0,"v":0.5714},
+  {"n":"City of EL Paso","p":"Corporate","a":3.33,"b":6.0,"v":0.5604},
+  {"n":"Northwestern Michigan College","p":"Transfer Partner","a":10.0,"b":18.0,"v":0.56},
+  {"n":"Rogue Community College","p":"Transfer Partner","a":34.0,"b":59.0,"v":0.5529},
+  {"n":"MiraCosta College","p":"Transfer Partner","a":48.0,"b":83.0,"v":0.55},
+  {"n":"Mountwest Community and Technical College","p":"Transfer Partner","a":7.0,"b":12.0,"v":0.5429},
+  {"n":"EL Paso Community College","p":"Transfer Partner","a":53.0,"b":91.0,"v":0.5396},
+  {"n":"Santa Rosa County Schools","p":"K12 Partner","a":4.33,"b":8.0,"v":0.5381},
+  {"n":"Beth Israel Lahey Health, Inc.","p":"Healthcare","a":4.33,"b":8.0,"v":0.5381},
+  {"n":"BON Secours Mercy Health, Inc.","p":"Healthcare","a":63.72,"b":108.0,"v":0.5239},
+  {"n":"Methodist LE Bonheur Healthcare, Inc.","p":"Healthcare","a":24.31,"b":42.0,"v":0.5233},
+  {"n":"South Louisiana Community College","p":"Transfer Partner","a":30.0,"b":51.0,"v":0.52},
+  {"n":"Blue Mountain Community College","p":"Transfer Partner","a":15.0,"b":26.0,"v":0.52},
+  {"n":"Study.com","p":"Transfer Partner","a":3992.0,"b":6722.0,"v":0.5153},
+  {"n":"BJC HealthCare","p":"Healthcare","a":33.97,"b":58.0,"v":0.5137},
+  {"n":"Metropolitan Community College - Penn Valley Campus","p":"Transfer Partner","a":23.0,"b":39.0,"v":0.513},
+  {"n":"Oakton Community College","p":"Transfer Partner","a":35.0,"b":59.0,"v":0.5086},
+  {"n":"Methodist Health System","p":"Healthcare","a":17.65,"b":30.0,"v":0.5019},
+  {"n":"Catholic Health System Buffalo","p":"Healthcare","a":4.44,"b":8.0,"v":0.5},
+  {"n":"Belmont College (OH)","p":"Transfer Partner","a":4.0,"b":7.0,"v":0.5},
+  {"n":"North Iowa Area Community College","p":"Transfer Partner","a":8.0,"b":14.0,"v":0.5},
+  {"n":"Davidson - Davie Community College","p":"Transfer Partner","a":16.0,"b":27.0,"v":0.5},
+  {"n":"Lanier Technical College","p":"Transfer Partner","a":29.0,"b":48.0,"v":0.4897},
+  {"n":"State of Missouri","p":"Corporate","a":13.21,"b":22.0,"v":0.4825},
+  {"n":"Poudre School District","p":"K12 Partner","a":14.43,"b":24.0,"v":0.4678},
+  {"n":"OhioHealth Corp.","p":"Healthcare","a":36.63,"b":60.0,"v":0.4657},
+  {"n":"Imperial Valley College","p":"Transfer Partner","a":23.0,"b":38.0,"v":0.4609},
+  {"n":"Corning Community College","p":"Transfer Partner","a":14.0,"b":23.0,"v":0.4571},
+  {"n":"Southwest Wisconsin Technical College","p":"Transfer Partner","a":10.0,"b":16.0,"v":0.44},
+  {"n":"Cecil College","p":"Transfer Partner","a":10.0,"b":16.0,"v":0.44},
+  {"n":"T - Mobile","p":"Corporate","a":173.21,"b":273.0,"v":0.4162},
+  {"n":"Vanderbilt University Medical Center","p":"Healthcare","a":45.07,"b":71.0,"v":0.4098},
+  {"n":"MultiCare Health System","p":"Healthcare","a":92.36,"b":145.0,"v":0.4062},
+  {"n":"Irvine Valley College","p":"Transfer Partner","a":41.0,"b":64.0,"v":0.4049},
+  {"n":"City Colleges of Chicago - Harold Washington","p":"Transfer Partner","a":52.0,"b":80.0,"v":0.3846},
+  {"n":"Pitt Community College","p":"Transfer Partner","a":26.0,"b":40.0,"v":0.3846},
+  {"n":"Union Plus","p":"Corporate","a":36.63,"b":57.0,"v":0.3818},
+  {"n":"Carle Health Care Inc.","p":"Healthcare","a":20.98,"b":32.0,"v":0.3716},
+  {"n":"MT. San Antonio College","p":"Transfer Partner","a":84.0,"b":128.0,"v":0.3714},
+  {"n":"Central Community College","p":"Transfer Partner","a":14.0,"b":22.0,"v":0.3714},
+  {"n":"Delta College","p":"Transfer Partner","a":29.0,"b":44.0,"v":0.3655},
+  {"n":"Golden West College","p":"Transfer Partner","a":29.0,"b":44.0,"v":0.3655},
+  {"n":"Shelton State Community College","p":"Transfer Partner","a":15.0,"b":23.0,"v":0.36},
+  {"n":"Western Piedmont Community College","p":"Transfer Partner","a":8.0,"b":12.0,"v":0.35},
+  {"n":"Elizabethtown Community and Technical College","p":"Transfer Partner","a":25.0,"b":38.0,"v":0.344},
+  {"n":"Making Waves Academy","p":"K12 Partner","a":1.0,"b":2.0,"v":0.332},
+  {"n":"McDonald's Corp.","p":"Corporate","a":121.47,"b":180.0,"v":0.3316},
+  {"n":"Santa Monica College","p":"Transfer Partner","a":66.0,"b":98.0,"v":0.3273},
+  {"n":"Hinds Community College","p":"Transfer Partner","a":38.0,"b":56.0,"v":0.3263},
+  {"n":"Bevill State Community College","p":"Transfer Partner","a":10.0,"b":15.0,"v":0.32},
+  {"n":"East Mississippi Community College","p":"Transfer Partner","a":11.0,"b":16.0,"v":0.3091},
+  {"n":"Southwestern Michigan College","p":"Transfer Partner","a":11.0,"b":16.0,"v":0.3091},
+  {"n":"Southeastern Community College","p":"Transfer Partner","a":11.0,"b":16.0,"v":0.3091},
+  {"n":"San Joaquin Valley College","p":"Transfer Partner","a":34.0,"b":50.0,"v":0.3059},
+  {"n":"Macomb Community College","p":"Transfer Partner","a":80.0,"b":116.0,"v":0.305},
+  {"n":"Lansing Community College","p":"Transfer Partner","a":47.0,"b":68.0,"v":0.3021},
+  {"n":"Hospital Sisters Health System (HSHS)","p":"Healthcare","a":13.1,"b":19.0,"v":0.3017},
+  {"n":"State of Indiana","p":"Corporate","a":30.42,"b":44.0,"v":0.3006},
+  {"n":"Chemeketa Community College","p":"Transfer Partner","a":60.0,"b":87.0,"v":0.3},
+  {"n":"Greenville Technical College","p":"Transfer Partner","a":60.0,"b":87.0,"v":0.3},
+  {"n":"Madisonville Community College","p":"Transfer Partner","a":12.0,"b":18.0,"v":0.3},
+  {"n":"Saddleback College","p":"Transfer Partner","a":62.0,"b":90.0,"v":0.2968},
+  {"n":"Miami Dade College","p":"Transfer Partner","a":204.0,"b":292.0,"v":0.2882},
+  {"n":"Collin College","p":"Transfer Partner","a":276.0,"b":395.0,"v":0.287},
+  {"n":"City Colleges of Chicago Foundation","p":"Transfer Partner","a":180.0,"b":258.0,"v":0.2867},
+  {"n":"Bluegrass Community and Technical College","p":"Transfer Partner","a":42.0,"b":60.0,"v":0.2857},
+  {"n":"Washtenaw Community College","p":"Transfer Partner","a":45.0,"b":64.0,"v":0.28},
+  {"n":"Middlesex Community College","p":"Transfer Partner","a":15.0,"b":22.0,"v":0.28},
+  {"n":"Middlesex College","p":"Transfer Partner","a":15.0,"b":22.0,"v":0.28},
+  {"n":"Danville Area Community College","p":"Transfer Partner","a":15.0,"b":22.0,"v":0.28},
+  {"n":"Schoolcraft College","p":"Transfer Partner","a":31.0,"b":44.0,"v":0.2774},
+  {"n":"West Kentucky Community and Technical College","p":"Transfer Partner","a":16.0,"b":23.0,"v":0.275},
+  {"n":"Baptist Health","p":"Healthcare","a":16.65,"b":24.0,"v":0.2721},
+  {"n":"Long Beach City College","p":"Transfer Partner","a":72.0,"b":102.0,"v":0.2667},
+  {"n":"Gateway Community and Technical College","p":"Transfer Partner","a":18.0,"b":26.0,"v":0.2667},
+  {"n":"Kern Community College District","p":"Transfer Partner","a":147.0,"b":207.0,"v":0.2653},
+  {"n":"AmeriCorps","p":"Corporate","a":2.11,"b":3.0,"v":0.2626},
+  {"n":"City Colleges of Chicago - Harry S. Truman College","p":"Transfer Partner","a":20.0,"b":28.0,"v":0.26},
+  {"n":"Metropolitan Community College (NE)","p":"Transfer Partner","a":54.0,"b":75.0,"v":0.2444},
+  {"n":"Amarillo College","p":"Transfer Partner","a":57.0,"b":79.0,"v":0.2421},
+  {"n":"Palomar College","p":"Transfer Partner","a":86.0,"b":119.0,"v":0.2419},
+  {"n":"Quinsigamond Community College","p":"Transfer Partner","a":30.0,"b":42.0,"v":0.24},
+  {"n":"Sinclair Community College","p":"Transfer Partner","a":121.0,"b":167.0,"v":0.2397},
+  {"n":"Columbus State Community College","p":"Transfer Partner","a":216.0,"b":298.0,"v":0.2389},
+  {"n":"Western Wyoming Community College","p":"Transfer Partner","a":32.0,"b":44.0,"v":0.2375},
+  {"n":"Eastern Iowa Community College District Foundation","p":"Transfer Partner","a":32.0,"b":44.0,"v":0.2375},
+  {"n":"Athens Technical College","p":"Transfer Partner","a":35.0,"b":48.0,"v":0.2343},
+  {"n":"Clark College","p":"Transfer Partner","a":73.0,"b":100.0,"v":0.2329},
+  {"n":"Nashville State Community College","p":"Transfer Partner","a":74.0,"b":102.0,"v":0.2324},
+  {"n":"Sheetz","p":"Corporate","a":8.55,"b":12.0,"v":0.2309},
+  {"n":"MT. Hood Community College","p":"Transfer Partner","a":39.0,"b":54.0,"v":0.2308},
+  {"n":"Cook Group Inc.","p":"Corporate","a":4.33,"b":6.0,"v":0.2305},
+  {"n":"DuPage Medical Group","p":"Corporate","a":4.33,"b":6.0,"v":0.2305},
+  {"n":"Universal Health Services, Inc.","p":"Healthcare","a":96.69,"b":133.0,"v":0.2289},
+  {"n":"Kootenai Health","p":"Healthcare","a":14.1,"b":20.0,"v":0.2281},
+  {"n":"Ventura County Community College District","p":"Transfer Partner","a":97.0,"b":132.0,"v":0.2247},
+  {"n":"NorthWest Arkansas Community College","p":"Transfer Partner","a":49.0,"b":67.0,"v":0.2245},
+  {"n":"North Idaho College","p":"Transfer Partner","a":50.0,"b":68.0,"v":0.224},
+  {"n":"Guilford Technical Community College","p":"Transfer Partner","a":55.0,"b":75.0,"v":0.2218},
+  {"n":"U - Haul","p":"Corporate","a":7.55,"b":11.0,"v":0.2175},
+  {"n":"Los Angeles Community College District","p":"Transfer Partner","a":243.0,"b":328.0,"v":0.2148},
+  {"n":"Prince George's Commmunity College","p":"Transfer Partner","a":89.0,"b":120.0,"v":0.2135},
+  {"n":"Lake Washington School District","p":"K12 Partner","a":21.98,"b":30.0,"v":0.206},
+  {"n":"Chaffey College","p":"Transfer Partner","a":85.0,"b":114.0,"v":0.2},
+  {"n":"Daytona State College","p":"Transfer Partner","a":81.0,"b":108.0,"v":0.2},
+  {"n":"Walters State Community College","p":"Transfer Partner","a":66.0,"b":88.0,"v":0.2},
+  {"n":"Santa Ana College","p":"Transfer Partner","a":49.0,"b":66.0,"v":0.2},
+  {"n":"Community College of Allegheny County","p":"Transfer Partner","a":67.0,"b":90.0,"v":0.2},
+  {"n":"Kent School District","p":"K12 Partner","a":37.52,"b":51.0,"v":0.2},
+  {"n":"Denver Public Schools","p":"K12 Partner","a":14.21,"b":19.0,"v":0.2},
+  {"n":"Leander Independent School District","p":"K12 Partner","a":11.88,"b":16.0,"v":0.2},
+  {"n":"Lourdes Health Network","p":"Healthcare","a":3.33,"b":5.0,"v":0.2},
+  {"n":"Virginia Highlands Community College","p":"Transfer Partner","a":12.0,"b":16.0,"v":0.2},
+  {"n":"Central Maine Community College","p":"Transfer Partner","a":11.0,"b":15.0,"v":0.2},
+  {"n":"West Virginia Northern Community College","p":"Transfer Partner","a":7.0,"b":10.0,"v":0.2},
+  {"n":"Northeast Community College","p":"Transfer Partner","a":7.0,"b":10.0,"v":0.2},
+  {"n":"West Shore Community College","p":"Transfer Partner","a":6.0,"b":8.0,"v":0.2},
+  {"n":"Montcalm Community College","p":"Transfer Partner","a":6.0,"b":8.0,"v":0.2},
+  {"n":"Mid - Plains Community College","p":"Transfer Partner","a":6.0,"b":8.0,"v":0.2},
+  {"n":"Jupiter Medical Center, Inc.","p":"Healthcare","a":5.55,"b":8.0,"v":0.2},
+  {"n":"CPS Energy","p":"Corporate","a":3.22,"b":5.0,"v":0.2},
+  {"n":"Mayland Community College","p":"Transfer Partner","a":3.0,"b":4.0,"v":0.2},
+  {"n":"Garrett College","p":"Transfer Partner","a":3.0,"b":4.0,"v":0.2},
+  {"n":"Ohio Virtual Academy","p":"K12 Partner","a":2.22,"b":3.0,"v":0.2},
+  {"n":"New Haven Public Schools","p":"K12 Partner","a":2.22,"b":3.0,"v":0.2},
+  {"n":"Natomas Unified School District","p":"K12 Partner","a":2.22,"b":3.0,"v":0.2},
+  {"n":"Advocate Lutheran General Hospital","p":"Healthcare","a":2.22,"b":3.0,"v":0.2},
+  {"n":"Portsmouth City School District","p":"K12 Partner","a":1.11,"b":2.0,"v":0.2},
+  {"n":"Mosaic Life Care at St. Joseph","p":"Corporate","a":1.11,"b":2.0,"v":0.2},
+  {"n":"Glenwood Community School District","p":"K12 Partner","a":1.11,"b":2.0,"v":0.2},
+  {"n":"Gadsden Independent School District","p":"K12 Partner","a":1.11,"b":2.0,"v":0.2},
+  {"n":"Eagle Grove Community School District","p":"K12 Partner","a":1.11,"b":2.0,"v":0.2},
+  {"n":"Dupont Hospital","p":"Healthcare","a":1.11,"b":2.0,"v":0.2},
+  {"n":"Coppell Independent School District","p":"K12 Partner","a":1.11,"b":2.0,"v":0.2},
+  {"n":"City of Kalamazoo","p":"Corporate","a":1.11,"b":2.0,"v":0.2},
+  {"n":"City of Glendale","p":"Corporate","a":1.11,"b":2.0,"v":0.2},
+  {"n":"Carsonville \u2013 Port Sanilac Schools","p":"K12 Partner","a":1.11,"b":2.0,"v":0.2},
+  {"n":"Bladen County Schools","p":"K12 Partner","a":1.11,"b":2.0,"v":0.2},
+  {"n":"Atlanta Community Schools","p":"K12 Partner","a":1.11,"b":2.0,"v":0.2},
+  {"n":"Laredo College","p":"Transfer Partner","a":1.0,"b":2.0,"v":0.2},
+  {"n":"Eastern West Virginia Community and Technical College","p":"Transfer Partner","a":1.0,"b":2.0,"v":0.2},
+  {"n":"Creech Air Force Base","p":"Military","a":1.0,"b":2.0,"v":0.2},
+  {"n":"Iowa Western Community College","p":"Transfer Partner","a":18.0,"b":24.0,"v":0.2},
+  {"n":"City Colleges of Chicago - Olive - Harvey College","p":"Transfer Partner","a":17.0,"b":23.0,"v":0.2},
+  {"n":"Mid - State Technical College","p":"Transfer Partner","a":7.0,"b":10.0,"v":0.2},
+  {"n":"Bothwell Regional Health Center Foundation","p":"Healthcare","a":3.22,"b":5.0,"v":0.2},
+  {"n":"Clackamas Community College","p":"Transfer Partner","a":25.0,"b":34.0,"v":0.2},
+  {"n":"Dallas College","p":"Transfer Partner","a":409.0,"b":543.0,"v":0.1941},
+  {"n":"Deaconess Health System, Inc.","p":"Healthcare","a":19.87,"b":27.0,"v":0.1934},
+  {"n":"Fayetteville Technical Community College","p":"Transfer Partner","a":95.0,"b":126.0,"v":0.1874},
+  {"n":"Clover Park School District (WA)","p":"K12 Partner","a":36.3,"b":48.0,"v":0.1818},
+  {"n":"Clarke County School District","p":"K12 Partner","a":6.66,"b":9.0,"v":0.1802},
+  {"n":"College of Lake County","p":"Transfer Partner","a":55.0,"b":72.0,"v":0.1782},
+  {"n":"Blinn College","p":"Transfer Partner","a":100.0,"b":131.0,"v":0.176},
+  {"n":"San Jacinto College","p":"Transfer Partner","a":186.0,"b":243.0,"v":0.1742},
+  {"n":"Florida Southwestern State College","p":"Transfer Partner","a":89.0,"b":116.0,"v":0.173},
+  {"n":"Broward College","p":"Transfer Partner","a":206.0,"b":268.0,"v":0.1709},
+  {"n":"Mastercard","p":"Corporate","a":4.44,"b":6.0,"v":0.1703},
+  {"n":"Central Piedmont Community College","p":"Transfer Partner","a":119.0,"b":155.0,"v":0.1697},
+  {"n":"Sierra College","p":"Transfer Partner","a":117.0,"b":152.0,"v":0.1692},
+  {"n":"Tarrant County College District","p":"Transfer Partner","a":464.0,"b":603.0,"v":0.169},
+  {"n":"Community Health Network, Inc.","p":"Healthcare","a":36.19,"b":47.0,"v":0.1668},
+  {"n":"EL Camino College","p":"Transfer Partner","a":69.0,"b":90.0,"v":0.1652},
+  {"n":"Unitedhealth Group Inc.","p":"Healthcare","a":229.03,"b":296.0,"v":0.1622},
+  {"n":"Asheville - Buncombe Technical Community College","p":"Transfer Partner","a":31.0,"b":40.0,"v":0.1613},
+  {"n":"Leidos","p":"Corporate","a":83.37,"b":108.0,"v":0.1601},
+  {"n":"North Orange County Community College District","p":"Transfer Partner","a":114.0,"b":147.0,"v":0.1579},
+  {"n":"City of Dallas","p":"Corporate","a":12.1,"b":16.0,"v":0.1564},
+  {"n":"Baton Rouge Community College","p":"Transfer Partner","a":54.0,"b":70.0,"v":0.1556},
+  {"n":"San Antonio College (Sac) (TX)","p":"Transfer Partner","a":133.0,"b":171.0,"v":0.1549},
+  {"n":"Whatcom Community College","p":"Transfer Partner","a":52.0,"b":67.0,"v":0.1538},
+  {"n":"Northampton Community College","p":"Transfer Partner","a":52.0,"b":67.0,"v":0.1538},
+  {"n":"Cuyahoga Community College","p":"Transfer Partner","a":96.0,"b":123.0,"v":0.15},
+  {"n":"Federal Way Public Schools (SP)","p":"K12 Partner","a":26.42,"b":34.0,"v":0.1496},
+  {"n":"Front Range Community College","p":"Transfer Partner","a":70.0,"b":90.0,"v":0.1486},
+  {"n":"Grossmont College","p":"Transfer Partner","a":67.0,"b":86.0,"v":0.1463},
+  {"n":"Fullerton College","p":"Transfer Partner","a":61.0,"b":78.0,"v":0.141},
+  {"n":"MT. San Jacinto College","p":"Transfer Partner","a":76.0,"b":96.0,"v":0.1368},
+  {"n":"Cypress College","p":"Transfer Partner","a":57.0,"b":72.0,"v":0.1368},
+  {"n":"Northeast Wisconsin Technical College","p":"Transfer Partner","a":19.0,"b":24.0,"v":0.1368},
+  {"n":"Community College of Aurora","p":"Transfer Partner","a":38.0,"b":48.0,"v":0.1368},
+  {"n":"NYC Health + Hospitals","p":"Healthcare","a":40.74,"b":52.0,"v":0.1346},
+  {"n":"Alpine School District","p":"K12 Partner","a":147.19,"b":186.0,"v":0.134},
+  {"n":"Military Spouse or Dependent","p":"Military","a":4918.0,"b":6191.0,"v":0.1329},
+  {"n":"Houston City College","p":"Transfer Partner","a":403.0,"b":506.0,"v":0.1285},
+  {"n":"Lone Star College","p":"Transfer Partner","a":597.0,"b":748.0,"v":0.1276},
+  {"n":"Clark State Community College","p":"Transfer Partner","a":47.0,"b":59.0,"v":0.1234},
+  {"n":"Truckee Meadows Community College","p":"Transfer Partner","a":120.0,"b":150.0,"v":0.12},
+  {"n":"Anne Arundel Community College","p":"Transfer Partner","a":75.0,"b":94.0,"v":0.12},
+  {"n":"Chattahoochee Technical College","p":"Transfer Partner","a":118.0,"b":147.0,"v":0.1186},
+  {"n":"Raritan Valley Community College","p":"Transfer Partner","a":28.0,"b":35.0,"v":0.1143},
+  {"n":"Southwest Tennessee Community College Foundation","p":"Transfer Partner","a":82.0,"b":102.0,"v":0.1122},
+  {"n":"Foothill - DeAnza Community College District","p":"Transfer Partner","a":109.0,"b":135.0,"v":0.1119},
+  {"n":"Amazon.com, Inc.","p":"Corporate","a":4041.59,"b":4994.0,"v":0.1119},
+  {"n":"Cincinnati State Technical and Community College","p":"Transfer Partner","a":68.0,"b":84.0,"v":0.1118},
+  {"n":"San Diego County Office of Education","p":"K12 Partner","a":74.37,"b":92.0,"v":0.1104},
+  {"n":"Green River College","p":"Transfer Partner","a":92.0,"b":114.0,"v":0.1087},
+  {"n":"Pikes Peak State College","p":"Transfer Partner","a":135.0,"b":166.0,"v":0.1022},
+  {"n":"Austin Community College","p":"Transfer Partner","a":313.0,"b":383.0,"v":0.1003},
+  {"n":"Henry Ford College","p":"Transfer Partner","a":108.0,"b":132.0,"v":0.1},
+  {"n":"Itawamba Community College","p":"Transfer Partner","a":12.0,"b":15.0,"v":0.1},
+  {"n":"College of Western Idaho","p":"Transfer Partner","a":105.0,"b":128.0,"v":0.0971},
+  {"n":"Community Colleges of Appalachia","p":"Transfer Partner","a":1083.0,"b":1320.0,"v":0.097},
+  {"n":"Jefferson Community and Technical College","p":"Transfer Partner","a":58.0,"b":71.0,"v":0.0966},
+  {"n":"Oakland Community College","p":"Transfer Partner","a":92.0,"b":112.0,"v":0.0957},
+  {"n":"Alamo Colleges District","p":"Transfer Partner","a":340.0,"b":414.0,"v":0.0941},
+  {"n":"Hillsborough Community College","p":"Transfer Partner","a":195.0,"b":236.0,"v":0.0892},
+  {"n":"The Church of Jesus Christ of Latter - Day Saints","p":"Corporate","a":89.7,"b":109.0,"v":0.0871},
+  {"n":"UPMC","p":"Healthcare","a":35.19,"b":43.0,"v":0.0864},
+  {"n":"Los Rios Community College District","p":"Transfer Partner","a":296.0,"b":356.0,"v":0.0824},
+  {"n":"Riverside Community College District Foundation","p":"Transfer Partner","a":193.0,"b":232.0,"v":0.0819},
+  {"n":"Blue Ridge Community and Technical College","p":"Transfer Partner","a":30.0,"b":36.0,"v":0.08},
+  {"n":"Palm Beach State College","p":"Transfer Partner","a":153.0,"b":183.0,"v":0.0745},
+  {"n":"MedStar Health, Inc.","p":"Healthcare","a":45.07,"b":54.0,"v":0.073},
+  {"n":"Providence Health and Services","p":"Healthcare","a":166.4,"b":198.0,"v":0.0703},
+  {"n":"Western Nevada College","p":"Transfer Partner","a":46.0,"b":55.0,"v":0.0696},
+  {"n":"Stark State College","p":"Transfer Partner","a":54.0,"b":64.0,"v":0.0667},
+  {"n":"Southwest Virginia Community College","p":"Transfer Partner","a":9.0,"b":11.0,"v":0.0667},
+  {"n":"Wayne County Community College District","p":"Transfer Partner","a":72.0,"b":86.0,"v":0.0667},
+  {"n":"Red Rocks Community College","p":"Transfer Partner","a":27.0,"b":32.0,"v":0.0667},
+  {"n":"CA Small School District Association","p":"K12 Partner","a":388.5,"b":461.0,"v":0.0663},
+  {"n":"Fedex","p":"Corporate","a":155.55,"b":185.0,"v":0.0656},
+  {"n":"Bellevue College","p":"Transfer Partner","a":124.0,"b":147.0,"v":0.0645},
+  {"n":"Montgomery County Community College","p":"Transfer Partner","a":52.0,"b":62.0,"v":0.0615},
+  {"n":"Trident Technical College","p":"Transfer Partner","a":129.0,"b":152.0,"v":0.0605},
+  {"n":"State of South Carolina","p":"Corporate","a":48.62,"b":58.0,"v":0.0603},
+  {"n":"Johnson County Community College","p":"Transfer Partner","a":111.0,"b":131.0,"v":0.0595},
+  {"n":"Waubonsee Community College Foundation","p":"Transfer Partner","a":51.0,"b":60.0,"v":0.0588},
+  {"n":"Southwestern Oregon Community College","p":"Transfer Partner","a":17.0,"b":20.0,"v":0.0588},
+  {"n":"McLennan Community College","p":"Transfer Partner","a":59.0,"b":70.0,"v":0.0576},
+  {"n":"Delta Air Lines, Inc.","p":"Corporate","a":64.73,"b":76.0,"v":0.0519},
+  {"n":"Trinity Valley Community College","p":"Transfer Partner","a":48.0,"b":56.0,"v":0.05},
+  {"n":"Bossier Parish Community College","p":"Transfer Partner","a":40.0,"b":47.0,"v":0.05},
+  {"n":"Owensboro Community and Technical College","p":"Transfer Partner","a":16.0,"b":19.0,"v":0.05},
+  {"n":"Legacy Health","p":"Healthcare","a":21.09,"b":25.0,"v":0.0486},
+  {"n":"Ivy Tech Community College","p":"Transfer Partner","a":871.0,"b":1015.0,"v":0.0485},
+  {"n":"Navarro Community College","p":"Transfer Partner","a":55.0,"b":64.0,"v":0.0473},
+  {"n":"Louisiana Community and Technical College System","p":"Transfer Partner","a":284.0,"b":330.0,"v":0.0437},
+  {"n":"Northwest Florida State College","p":"Transfer Partner","a":38.0,"b":44.0,"v":0.0421},
+  {"n":"Lower Columbia College","p":"Transfer Partner","a":53.0,"b":62.0,"v":0.0415},
+  {"n":"Roane State Community College","p":"Transfer Partner","a":68.0,"b":79.0,"v":0.0412},
+  {"n":"TRI - County Technical College","p":"Transfer Partner","a":30.0,"b":35.0,"v":0.04},
+  {"n":"Hermiston School District 8R","p":"K12 Partner","a":13.99,"b":17.0,"v":0.0379},
+  {"n":"Jordan School District","p":"K12 Partner","a":59.5,"b":69.0,"v":0.0366},
+  {"n":"Santa Barbara City College","p":"Transfer Partner","a":44.0,"b":51.0,"v":0.0364},
+  {"n":"NKC Health","p":"Healthcare","a":8.88,"b":11.0,"v":0.0351},
+  {"n":"Houston Independent School District","p":"K12 Partner","a":30.53,"b":36.0,"v":0.0341},
+  {"n":"San Diego Community College District","p":"Transfer Partner","a":166.0,"b":191.0,"v":0.0337},
+  {"n":"Indian River State College","p":"Transfer Partner","a":72.0,"b":83.0,"v":0.0333},
+  {"n":"US Naval Community College","p":"Military","a":2686.0,"b":440.0,"v":0.03},
+  {"n":"Pflugerville Independent School District","p":"K12 Partner","a":7.77,"b":2.0,"v":0.03},
+  {"n":"North East Independent School District","p":"K12 Partner","a":7.77,"b":2.0,"v":0.03},
+  {"n":"Little Elm Independent School District","p":"K12 Partner","a":7.66,"b":2.0,"v":0.03},
+  {"n":"Trios Health","p":"Healthcare","a":7.55,"b":2.0,"v":0.03},
+  {"n":"North Polk Community School District","p":"K12 Partner","a":6.66,"b":2.0,"v":0.03},
+  {"n":"Bellevue School District","p":"K12 Partner","a":6.66,"b":2.0,"v":0.03},
+  {"n":"Mitchell Technical College","p":"Transfer Partner","a":6.0,"b":2.0,"v":0.03},
+  {"n":"Downers Grove Grade School District No 58","p":"K12 Partner","a":16.65,"b":5.0,"v":0.03},
+  {"n":"Bladen Community College","p":"Transfer Partner","a":5.0,"b":2.0,"v":0.03},
+  {"n":"Wyandot Memorial Hospital (Upper Sandusky, Ohio)","p":"Healthcare","a":4.44,"b":2.0,"v":0.03},
+  {"n":"Olympia School District (WA)","p":"K12 Partner","a":4.44,"b":2.0,"v":0.03},
+  {"n":"Central Maine Health Ventures, Inc.","p":"Healthcare","a":4.44,"b":2.0,"v":0.03},
+  {"n":"Dakota College at Bottineau","p":"Transfer Partner","a":4.0,"b":2.0,"v":0.03},
+  {"n":"City of Dayton","p":"Corporate","a":4.22,"b":2.0,"v":0.03},
+  {"n":"Rockingham Community College","p":"Transfer Partner","a":19.0,"b":7.0,"v":0.03},
+  {"n":"Martinsburg College (WV)","p":"Transfer Partner","a":15.0,"b":6.0,"v":0.03},
+  {"n":"United States Postal Service","p":"Corporate","a":49.85,"b":19.0,"v":0.03},
+  {"n":"Blackstone Valley Prep Mayoral Academy","p":"K12 Partner","a":7.77,"b":3.0,"v":0.03},
+  {"n":"Providence Public School District","p":"K12 Partner","a":18.87,"b":8.0,"v":0.03},
+  {"n":"Schnuck Markets, Inc.","p":"Corporate","a":3.33,"b":2.0,"v":0.03},
+  {"n":"Lyon County School District","p":"K12 Partner","a":17.76,"b":8.0,"v":0.03},
+  {"n":"Mountainland Technical College","p":"Transfer Partner","a":22.0,"b":10.0,"v":0.03},
+  {"n":"State of Washington","p":"Corporate","a":91.14,"b":40.0,"v":0.03},
+  {"n":"Redington - Fairview General Hospital","p":"Healthcare","a":3.33,"b":2.0,"v":0.03},
+  {"n":"Marshalltown Community School District","p":"K12 Partner","a":3.33,"b":2.0,"v":0.03},
+  {"n":"Moses Lake School District (WA)","p":"K12 Partner","a":13.21,"b":6.0,"v":0.03},
+  {"n":"New Jerusalem Elementary School District/Delta Charter Schools","p":"K12 Partner","a":3.22,"b":2.0,"v":0.03},
+  {"n":"Waukee Community School District","p":"K12 Partner","a":15.54,"b":8.0,"v":0.03},
+  {"n":"Emmetsburg CSD","p":"K12 Partner","a":15.54,"b":8.0,"v":0.03},
+  {"n":"Apple Valley Unified School District","p":"K12 Partner","a":15.43,"b":8.0,"v":0.03},
+  {"n":"City of Henderson","p":"Corporate","a":18.1,"b":9.0,"v":0.03},
+  {"n":"Northwestern Huntly Hosital Hospital","p":"Healthcare","a":12.21,"b":6.0,"v":0.03},
+  {"n":"Mesa County Valley School District 51","p":"K12 Partner","a":42.07,"b":21.0,"v":0.03},
+  {"n":"Brazosport Independent School District","p":"K12 Partner","a":8.77,"b":5.0,"v":0.03},
+  {"n":"BAE Systems, Inc.","p":"Corporate","a":38.85,"b":20.0,"v":0.03},
+  {"n":"SUNY Niagara County Community College","p":"Transfer Partner","a":24.0,"b":12.0,"v":0.03},
+  {"n":"Surry Community College","p":"Transfer Partner","a":8.0,"b":4.0,"v":0.03},
+  {"n":"Integris Health","p":"Healthcare","a":14.43,"b":8.0,"v":0.03},
+  {"n":"Nationwide Mutual Insurance Co.","p":"Corporate","a":17.54,"b":9.0,"v":0.03},
+  {"n":"Fresno Unified School District","p":"K12 Partner","a":14.32,"b":8.0,"v":0.03},
+  {"n":"Chesterfield County Public Schools (VA)","p":"K12 Partner","a":11.1,"b":6.0,"v":0.03},
+  {"n":"Conduent Inc.","p":"Corporate","a":32.86,"b":18.0,"v":0.03},
+  {"n":"RWJ Barnabas Health, Inc.","p":"Healthcare","a":16.32,"b":9.0,"v":0.03},
+  {"n":"Bibb County School District","p":"K12 Partner","a":10.88,"b":6.0,"v":0.03},
+  {"n":"Advocate Condell Medical Center","p":"Healthcare","a":5.55,"b":3.0,"v":0.03},
+  {"n":"Gogebic Community College","p":"Transfer Partner","a":5.0,"b":3.0,"v":0.03},
+  {"n":"University Medical Center of EL Paso","p":"Healthcare","a":7.66,"b":5.0,"v":0.03},
+  {"n":"Westmoreland County Community College","p":"Transfer Partner","a":22.0,"b":12.0,"v":0.03},
+  {"n":"Harmony Public Schools","p":"K12 Partner","a":15.43,"b":9.0,"v":0.03},
+  {"n":"Cincinnati Public Schools","p":"K12 Partner","a":21.09,"b":12.0,"v":0.03},
+  {"n":"Northeast Iowa Community College","p":"Transfer Partner","a":12.0,"b":7.0,"v":0.03},
+  {"n":"Lake Area Technical College","p":"Transfer Partner","a":12.0,"b":7.0,"v":0.03},
+  {"n":"Pierpont Community and Technical College","p":"Transfer Partner","a":33.0,"b":19.0,"v":0.03},
+  {"n":"Highmark Inc.","p":"Healthcare","a":27.09,"b":16.0,"v":0.03},
+  {"n":"New River Community College","p":"Transfer Partner","a":27.0,"b":16.0,"v":0.03},
+  {"n":"Northeast Mississippi Community College","p":"Transfer Partner","a":20.0,"b":12.0,"v":0.03},
+  {"n":"Caldwell Community and Technical Institute","p":"Transfer Partner","a":24.0,"b":15.0,"v":0.03},
+  {"n":"Greenville County School District","p":"K12 Partner","a":40.41,"b":25.0,"v":0.03},
+  {"n":"Eastern Gateway Community College","p":"Transfer Partner","a":462.0,"b":286.0,"v":0.03},
+  {"n":"Reynoldsburg City Schools","p":"K12 Partner","a":14.32,"b":9.0,"v":0.03},
+  {"n":"Highland Community College - Illinois","p":"Transfer Partner","a":15.0,"b":10.0,"v":0.03},
+  {"n":"North Georgia Technical College","p":"Transfer Partner","a":32.0,"b":20.0,"v":0.03},
+  {"n":"Indian Hills Community College","p":"Transfer Partner","a":17.0,"b":11.0,"v":0.03},
+  {"n":"Pasco County Schools (FL)","p":"K12 Partner","a":18.54,"b":12.0,"v":0.03},
+  {"n":"Sumner - Bonney Lake School District (WA)","p":"K12 Partner","a":29.86,"b":20.0,"v":0.03},
+  {"n":"Salem Health","p":"Healthcare","a":27.53,"b":18.0,"v":0.03},
+  {"n":"Sentara Healthcare","p":"Healthcare","a":54.28,"b":36.0,"v":0.03},
+  {"n":"Yelm Community Schools (WA)","p":"K12 Partner","a":8.88,"b":6.0,"v":0.03},
+  {"n":"State of Illinois","p":"Corporate","a":30.53,"b":20.0,"v":0.03},
+  {"n":"Cabarrus County Schools","p":"K12 Partner","a":10.99,"b":8.0,"v":0.03},
+  {"n":"Special School District of St. Louis County","p":"K12 Partner","a":10.99,"b":8.0,"v":0.03},
+  {"n":"Nunez Community College","p":"Transfer Partner","a":16.0,"b":11.0,"v":0.03},
+  {"n":"Everett Public Schools","p":"K12 Partner","a":15.54,"b":11.0,"v":0.03},
+  {"n":"Northeast Alabama Community College","p":"Transfer Partner","a":14.0,"b":10.0,"v":0.03},
+  {"n":"Big Sandy Community and Technical College System","p":"Transfer Partner","a":12.0,"b":8.0,"v":0.03},
+  {"n":"Enumclaw School District (WA)","p":"K12 Partner","a":8.88,"b":6.0,"v":0.03},
+  {"n":"Zurich North America","p":"Corporate","a":8.66,"b":6.0,"v":0.03},
+  {"n":"Pennsylvania Highlands Community College","p":"Transfer Partner","a":8.0,"b":6.0,"v":0.03},
+  {"n":"Bay de NOC Community College","p":"Transfer Partner","a":8.0,"b":6.0,"v":0.03},
+  {"n":"Duplin County Schools","p":"K12 Partner","a":6.66,"b":5.0,"v":0.03},
+  {"n":"Catholic Health","p":"Healthcare","a":6.66,"b":5.0,"v":0.03},
+  {"n":"Lakeshore Technical College","p":"Transfer Partner","a":6.0,"b":4.0,"v":0.03},
+  {"n":"Boston Medical Center Health System","p":"Healthcare","a":4.44,"b":3.0,"v":0.03},
+  {"n":"Iowa Lakes Community College","p":"Transfer Partner","a":4.0,"b":3.0,"v":0.03},
+  {"n":"Vermilion Local School District","p":"K12 Partner","a":2.22,"b":2.0,"v":0.03},
+  {"n":"Laredo Medical Center","p":"Corporate","a":2.22,"b":2.0,"v":0.03},
+  {"n":"Indian Prairie School District 204","p":"K12 Partner","a":2.22,"b":2.0,"v":0.03},
+  {"n":"Dishchii'Bikoh Community School","p":"K12 Partner","a":2.22,"b":2.0,"v":0.03},
+  {"n":"Aubrey Independent School District","p":"K12 Partner","a":2.22,"b":2.0,"v":0.03},
+  {"n":"Davenport Community School District","p":"K12 Partner","a":17.65,"b":12.0,"v":0.03},
+  {"n":"Auburn School District","p":"K12 Partner","a":51.73,"b":36.0,"v":0.03},
+  {"n":"Elgin Community College","p":"Transfer Partner","a":68.0,"b":47.0,"v":0.03},
+  {"n":"Redlands Unified School District","p":"K12 Partner","a":6.44,"b":5.0,"v":0.03},
+  {"n":"Altabank","p":"Corporate","a":2.11,"b":2.0,"v":0.03},
+  {"n":"Maricopa Community College System Office","p":"Transfer Partner","a":70.0,"b":50.0,"v":0.03},
+  {"n":"Charles Stewart Mott Community College","p":"Transfer Partner","a":32.0,"b":23.0,"v":0.03},
+  {"n":"Alpena Community College","p":"Transfer Partner","a":15.0,"b":11.0,"v":0.03},
+  {"n":"Alaska Airlines","p":"Corporate","a":13.99,"b":11.0,"v":0.03},
+  {"n":"OSF HealthCare","p":"Healthcare","a":36.63,"b":27.0,"v":0.03},
+  {"n":"Cape Fear Community College","p":"Transfer Partner","a":38.0,"b":28.0,"v":0.03},
+  {"n":"DEL Mar College","p":"Transfer Partner","a":56.0,"b":42.0,"v":0.03},
+  {"n":"Boston Medical Center","p":"Healthcare","a":4.0,"b":3.0,"v":0.03},
+  {"n":"Johns Hopkins Health System Corp.","p":"Healthcare","a":49.62,"b":37.0,"v":0.03},
+  {"n":"West Valley School District (WA)","p":"K12 Partner","a":9.88,"b":8.0,"v":0.03},
+  {"n":"Carl Sandburg College","p":"Transfer Partner","a":16.0,"b":12.0,"v":0.03},
+  {"n":"Inver Hills Community College","p":"Transfer Partner","a":16.0,"b":12.0,"v":0.03},
+  {"n":"College of Eastern Idaho","p":"Transfer Partner","a":39.0,"b":30.0,"v":0.03},
+  {"n":"Orange Coast College","p":"Transfer Partner","a":74.0,"b":56.0,"v":0.03},
+  {"n":"Prisma Health","p":"Healthcare","a":40.63,"b":31.0,"v":0.03},
+  {"n":"Drake State Community and Technical College","p":"Transfer Partner","a":7.0,"b":6.0,"v":0.03},
+  {"n":"Highline Public Schools (WA)","p":"K12 Partner","a":31.08,"b":24.0,"v":0.03},
+  {"n":"Indiana University Health, Inc.","p":"Healthcare","a":67.6,"b":52.0,"v":0.03},
+  {"n":"REX Healthcare","p":"Corporate","a":13.32,"b":11.0,"v":0.03},
+  {"n":"Grainger","p":"Corporate","a":27.87,"b":22.0,"v":0.03},
+  {"n":"Wiregrass Georgia Technical College","p":"Transfer Partner","a":45.0,"b":35.0,"v":0.03},
+  {"n":"Mercy Hospital Springfield","p":"Healthcare","a":21.09,"b":17.0,"v":0.03},
+  {"n":"Beaumont Unified School District","p":"K12 Partner","a":13.21,"b":11.0,"v":0.03},
+  {"n":"Bismarck State College","p":"Transfer Partner","a":12.0,"b":10.0,"v":0.03},
+  {"n":"Southeast Kentucky Community and Technical College","p":"Transfer Partner","a":12.0,"b":10.0,"v":0.03},
+  {"n":"JetBlue Airways Corp.","p":"Corporate","a":20.87,"b":17.0,"v":0.03},
+  {"n":"Cencora, Inc. (Formerly AmerisourceBergen Corp.)","p":"Healthcare","a":16.65,"b":14.0,"v":0.03},
+  {"n":"Canyons School District","p":"K12 Partner","a":33.64,"b":27.0,"v":0.03},
+  {"n":"St. Vincent Health","p":"Healthcare","a":29.97,"b":24.0,"v":0.03},
+  {"n":"Crowder College","p":"Transfer Partner","a":60.0,"b":48.0,"v":0.03},
+  {"n":"Pittsburgh Technical College","p":"Transfer Partner","a":10.0,"b":8.0,"v":0.03},
+  {"n":"Columbia Gorge Community College","p":"Transfer Partner","a":10.0,"b":8.0,"v":0.03},
+  {"n":"Northside Independent School District","p":"K12 Partner","a":16.65,"b":14.0,"v":0.03},
+  {"n":"Albany Technical College","p":"Transfer Partner","a":33.0,"b":27.0,"v":0.03},
+  {"n":"The University of Vermont Health Network","p":"Healthcare","a":25.42,"b":21.0,"v":0.03},
+  {"n":"Othello School District","p":"K12 Partner","a":8.88,"b":8.0,"v":0.03},
+  {"n":"MaineHealth","p":"Healthcare","a":8.88,"b":8.0,"v":0.03},
+  {"n":"Region 5 Education Service Center","p":"K12 Partner","a":37.74,"b":32.0,"v":0.03},
+  {"n":"North Central Missouri Community College","p":"Transfer Partner","a":21.0,"b":18.0,"v":0.03},
+  {"n":"San Juan College Foundation, Inc.","p":"Transfer Partner","a":29.0,"b":24.0,"v":0.03},
+  {"n":"New York City Department of Education","p":"K12 Partner","a":32.19,"b":27.0,"v":0.03},
+  {"n":"Joliet Junior College","p":"Transfer Partner","a":87.0,"b":72.0,"v":0.03},
+  {"n":"Columbus City School District","p":"K12 Partner","a":23.09,"b":20.0,"v":0.03},
+  {"n":"Western Iowa Tech Community College","p":"Transfer Partner","a":24.0,"b":20.0,"v":0.03},
+  {"n":"North Central Michigan College","p":"Transfer Partner","a":8.0,"b":7.0,"v":0.03},
+  {"n":"Wellspan Health","p":"Healthcare","a":24.42,"b":21.0,"v":0.03},
+  {"n":"Fifth Third Bank","p":"Corporate","a":34.08,"b":29.0,"v":0.03},
+  {"n":"Jefferson State Community College","p":"Transfer Partner","a":49.0,"b":42.0,"v":0.03},
+  {"n":"Central Kitsap School District","p":"K12 Partner","a":38.52,"b":33.0,"v":0.03},
+  {"n":"Davis Technical College","p":"Transfer Partner","a":52.0,"b":44.0,"v":0.03},
+  {"n":"St. Louis Community College","p":"Transfer Partner","a":159.0,"b":135.0,"v":0.03},
+  {"n":"Seattle Public Schools","p":"K12 Partner","a":52.17,"b":45.0,"v":0.03},
+  {"n":"Metropolitan Community College - Maple Woods","p":"Transfer Partner","a":22.0,"b":19.0,"v":0.03},
+  {"n":"New River Community and Technical College","p":"Transfer Partner","a":11.0,"b":10.0,"v":0.03},
+  {"n":"Huntington Bancshares Inc.","p":"Corporate","a":47.96,"b":41.0,"v":0.03},
+  {"n":"Coastline College","p":"Transfer Partner","a":69.0,"b":59.0,"v":0.03},
+  {"n":"Henry Ford Hospital","p":"Healthcare","a":27.42,"b":24.0,"v":0.03},
+  {"n":"Owens Community College","p":"Transfer Partner","a":42.0,"b":36.0,"v":0.03},
+  {"n":"Ivy Tech Community College - South Bend and Elkhart","p":"Transfer Partner","a":28.0,"b":24.0,"v":0.03},
+  {"n":"Ivy Tech Community College - Whitewater (Richmond)","p":"Transfer Partner","a":14.0,"b":12.0,"v":0.03},
+  {"n":"Community Health Systems, Inc.","p":"Healthcare","a":78.48,"b":68.0,"v":0.03},
+  {"n":"State College of Florida, Manatee - Sarasota","p":"Transfer Partner","a":73.0,"b":63.0,"v":0.03},
+  {"n":"Falcon School District 49","p":"K12 Partner","a":9.99,"b":9.0,"v":0.03},
+  {"n":"Greeley - Evans Weld County School District 6","p":"K12 Partner","a":18.76,"b":17.0,"v":0.03},
+  {"n":"Puyallup School District","p":"K12 Partner","a":44.29,"b":39.0,"v":0.03},
+  {"n":"Mountain Empire Community College","p":"Transfer Partner","a":20.0,"b":18.0,"v":0.03},
+  {"n":"SUNY Cayuga Community College","p":"Transfer Partner","a":20.0,"b":18.0,"v":0.03},
+  {"n":"Tacoma Public Schools","p":"K12 Partner","a":48.62,"b":43.0,"v":0.03},
+  {"n":"Best Buy","p":"Corporate","a":106.92,"b":94.0,"v":0.03},
+  {"n":"Reading Area Community College","p":"Transfer Partner","a":38.0,"b":34.0,"v":0.03},
+  {"n":"Arapahoe Community College","p":"Transfer Partner","a":62.0,"b":55.0,"v":0.03},
+  {"n":"College of Southern Idaho","p":"Transfer Partner","a":86.0,"b":76.0,"v":0.03},
+  {"n":"Mercy Hospital st.louis","p":"Healthcare","a":56.39,"b":51.0,"v":0.03},
+  {"n":"AT&T Inc.","p":"Corporate","a":148.12,"b":132.0,"v":0.03},
+  {"n":"Florida Gateway College","p":"Transfer Partner","a":18.0,"b":16.0,"v":0.03},
+  {"n":"Hazard Community and Technical College","p":"Transfer Partner","a":6.0,"b":6.0,"v":0.03},
+  {"n":"Greenfield Community College","p":"Transfer Partner","a":6.0,"b":6.0,"v":0.03},
+  {"n":"Osceola County School District (FL)","p":"K12 Partner","a":13.32,"b":12.0,"v":0.03},
+  {"n":"Henderson Community and Technical College","p":"Transfer Partner","a":9.0,"b":8.0,"v":0.03},
+  {"n":"SC House Calls, Inc.","p":"Healthcare","a":3.33,"b":3.0,"v":0.03},
+  {"n":"City of Detroit","p":"Corporate","a":3.33,"b":3.0,"v":0.03},
+  {"n":"Pasco School District #1","p":"K12 Partner","a":34.3,"b":31.0,"v":0.03},
+  {"n":"Carrollton-Farmers Branch Independent School District","p":"K12 Partner","a":6.55,"b":6.0,"v":0.03},
+  {"n":"Harrisburg Area Community College","p":"Transfer Partner","a":131.0,"b":119.0,"v":0.03},
+  {"n":"North Hennepin Community College","p":"Transfer Partner","a":25.0,"b":23.0,"v":0.03},
+  {"n":"LifePoint Health","p":"Healthcare","a":85.03,"b":78.0,"v":0.03},
+  {"n":"Alamance Community College","p":"Transfer Partner","a":19.0,"b":18.0,"v":0.03},
+  {"n":"Patrick and Henry Community College","p":"Transfer Partner","a":16.0,"b":15.0,"v":0.03},
+  {"n":"Calhoun Community College","p":"Transfer Partner","a":110.0,"b":102.0,"v":0.03},
+  {"n":"Oklahoma City Community College","p":"Transfer Partner","a":94.0,"b":87.0,"v":0.03},
+  {"n":"Mid Michigan Community College","p":"Transfer Partner","a":26.0,"b":24.0,"v":0.03},
+  {"n":"SUNY Schenectady County Community College","p":"Transfer Partner","a":13.0,"b":12.0,"v":0.03},
+  {"n":"Moraine Valley Community College","p":"Transfer Partner","a":72.0,"b":67.0,"v":0.03},
+  {"n":"Yakima Valley College","p":"Transfer Partner","a":105.0,"b":98.0,"v":0.03},
+  {"n":"Knox County Schools","p":"K12 Partner","a":26.31,"b":25.0,"v":0.03},
+  {"n":"Kipp Texas, Inc.","p":"K12 Partner","a":10.99,"b":11.0,"v":0.03},
+  {"n":"Camden County College","p":"Transfer Partner","a":40.0,"b":38.0,"v":0.03},
+  {"n":"McDowell Technical Community College","p":"Transfer Partner","a":10.0,"b":10.0,"v":0.03},
+  {"n":"Williston State College","p":"Transfer Partner","a":10.0,"b":10.0,"v":0.03},
+  {"n":"UCNJ Union College of Union County NJ","p":"Transfer Partner","a":54.0,"b":51.0,"v":0.03},
+  {"n":"Temple College","p":"Transfer Partner","a":61.0,"b":58.0,"v":0.03},
+  {"n":"Steel Dynamics, Inc.","p":"Corporate","a":19.65,"b":19.0,"v":0.03},
+  {"n":"The University of North Carolina Health System","p":"Healthcare","a":35.19,"b":34.0,"v":0.03},
+  {"n":"Everett Community College","p":"Transfer Partner","a":133.0,"b":126.0,"v":0.03},
+  {"n":"DES Moines Area Community College","p":"Transfer Partner","a":86.0,"b":82.0,"v":0.03},
+  {"n":"Huntsville Hospital Health System","p":"Healthcare","a":18.43,"b":18.0,"v":0.03},
+  {"n":"Toppenish School District #202","p":"K12 Partner","a":7.77,"b":8.0,"v":0.03},
+  {"n":"Region 19 Education Service Center","p":"K12 Partner","a":7.77,"b":8.0,"v":0.03},
+  {"n":"Kirtland Community College","p":"Transfer Partner","a":7.0,"b":7.0,"v":0.03},
+  {"n":"San Diego Unified School District","p":"K12 Partner","a":15.32,"b":15.0,"v":0.03},
+  {"n":"Skagit Valley College","p":"Transfer Partner","a":71.0,"b":68.0,"v":0.03},
+  {"n":"BYU-PATHWAY WORLDWIDE","p":"Transfer Partner","a":599.0,"b":575.0,"v":0.03},
+  {"n":"Coast Community College District","p":"Transfer Partner","a":157.0,"b":151.0,"v":0.03},
+  {"n":"Hillsborough County Public Schools","p":"K12 Partner","a":25.98,"b":26.0,"v":0.03},
+  {"n":"North Thurston Public Schools","p":"K12 Partner","a":19.98,"b":20.0,"v":0.03},
+  {"n":"Brigham Young University - Idaho","p":"Transfer Partner","a":493.0,"b":476.0,"v":0.03},
+  {"n":"Corona - Norco Unified School District","p":"K12 Partner","a":21.09,"b":21.0,"v":0.03},
+  {"n":"Glen Oaks Community College","p":"Transfer Partner","a":11.0,"b":11.0,"v":0.03},
+  {"n":"St. Charles Community College","p":"Transfer Partner","a":48.0,"b":47.0,"v":0.03},
+  {"n":"Central Texas College","p":"Transfer Partner","a":208.0,"b":203.0,"v":0.03},
+  {"n":"Pasadena City College","p":"Transfer Partner","a":67.0,"b":66.0,"v":0.03},
+  {"n":"Kirkwood Community College Foundation","p":"Transfer Partner","a":56.0,"b":55.0,"v":0.03},
+  {"n":"Renton School District (WA)","p":"K12 Partner","a":12.1,"b":12.0,"v":0.03},
+  {"n":"Weber School District","p":"K12 Partner","a":75.37,"b":74.0,"v":0.03},
+  {"n":"Lorain County Community College","p":"Transfer Partner","a":72.0,"b":71.0,"v":0.03},
+  {"n":"Lake Michigan College","p":"Transfer Partner","a":19.0,"b":19.0,"v":0.03},
+  {"n":"Chattanooga State Community College","p":"Transfer Partner","a":103.0,"b":102.0,"v":0.03},
+  {"n":"South Kitsap School District","p":"K12 Partner","a":16.54,"b":17.0,"v":0.03},
+  {"n":"Iowa Central Community College","p":"Transfer Partner","a":23.0,"b":23.0,"v":0.03},
+  {"n":"Providence St. Mary Medical Center","p":"Corporate","a":4.33,"b":5.0,"v":0.03},
+  {"n":"Central New Mexico Community College","p":"Transfer Partner","a":95.0,"b":95.0,"v":0.03},
+  {"n":"Columbia Basin College","p":"Transfer Partner","a":172.0,"b":172.0,"v":0.03},
+  {"n":"Pueblo Community College","p":"Transfer Partner","a":32.0,"b":32.0,"v":0.03},
+  {"n":"Chippewa Valley Technical College Foundation, Inc.","p":"Transfer Partner","a":28.0,"b":28.0,"v":0.03},
+  {"n":"Southcentral Kentucky Community and Technical College","p":"Transfer Partner","a":16.0,"b":16.0,"v":0.03},
+  {"n":"Holyoke Community College","p":"Transfer Partner","a":16.0,"b":16.0,"v":0.03},
+  {"n":"Iowa Valley Community College District","p":"Transfer Partner","a":12.0,"b":12.0,"v":0.03},
+  {"n":"East Valley School District No. 90 (WA)","p":"K12 Partner","a":8.88,"b":9.0,"v":0.03},
+  {"n":"Great Bay Community College","p":"Transfer Partner","a":4.0,"b":4.0,"v":0.03},
+  {"n":"MultiCare Deaconess Hospital","p":"Healthcare","a":4.44,"b":5.0,"v":0.03},
+  {"n":"Hartford Public Schools","p":"K12 Partner","a":4.44,"b":5.0,"v":0.03},
+  {"n":"Kennewick School District","p":"K12 Partner","a":34.97,"b":36.0,"v":0.03},
+  {"n":"Polk State College","p":"Transfer Partner","a":73.0,"b":74.0,"v":0.03},
+  {"n":"Wake Technical Community College","p":"Transfer Partner","a":183.0,"b":184.0,"v":0.03},
+  {"n":"Hagerstown Community College","p":"Transfer Partner","a":37.0,"b":38.0,"v":0.03},
+  {"n":"Santiago Canyon College","p":"Transfer Partner","a":33.0,"b":34.0,"v":0.03},
+  {"n":"Duval County Public Schools (FL)","p":"K12 Partner","a":17.43,"b":18.0,"v":0.03},
+  {"n":"Highline College","p":"Transfer Partner","a":87.0,"b":88.0,"v":0.03},
+  {"n":"Kalamazoo Valley Community College","p":"Transfer Partner","a":54.0,"b":55.0,"v":0.03},
+  {"n":"General Dynamics Corp.","p":"Corporate","a":116.01,"b":118.0,"v":0.03},
+  {"n":"Modesto Junior College","p":"Transfer Partner","a":111.0,"b":114.0,"v":0.03},
+  {"n":"Lehigh Valley Health Network, Inc.","p":"Healthcare","a":23.09,"b":24.0,"v":0.03},
+  {"n":"Cooperating School Districts of Greater Kansas City (CSDGCK)","p":"K12 Partner","a":92.13,"b":95.0,"v":0.03},
+  {"n":"Lane Community College","p":"Transfer Partner","a":57.0,"b":59.0,"v":0.03},
+  {"n":"Christus Health","p":"Healthcare","a":20.98,"b":22.0,"v":0.03},
+  {"n":"The School District of Philadelphia","p":"K12 Partner","a":49.62,"b":52.0,"v":0.03},
+  {"n":"Agile Defense, Inc.","p":"Corporate","a":9.88,"b":11.0,"v":0.03},
+  {"n":"Pierce College District","p":"Transfer Partner","a":148.0,"b":154.0,"v":0.03},
+  {"n":"Walgreens Boots Alliance, Inc.","p":"Corporate","a":124.35,"b":129.0,"v":0.03},
+  {"n":"Northcentral Technical College","p":"Transfer Partner","a":18.0,"b":19.0,"v":0.03},
+  {"n":"Fulton - Montgomery Community College","p":"Transfer Partner","a":9.0,"b":10.0,"v":0.03},
+  {"n":"Olympic College","p":"Transfer Partner","a":90.0,"b":94.0,"v":0.03},
+  {"n":"Pellissippi State Community College","p":"Transfer Partner","a":128.0,"b":134.0,"v":0.03},
+  {"n":"Angelina College","p":"Transfer Partner","a":46.0,"b":48.0,"v":0.03},
+  {"n":"Southern West Virginia Community and Technical College","p":"Transfer Partner","a":23.0,"b":24.0,"v":0.03},
+  {"n":"Marion Technical College","p":"Transfer Partner","a":14.0,"b":15.0,"v":0.03},
+  {"n":"Borough of Manhattan Community College","p":"Transfer Partner","a":109.0,"b":115.0,"v":0.03},
+  {"n":"University of Arkansas - Pulaski Technical College","p":"Transfer Partner","a":29.0,"b":31.0,"v":0.03},
+  {"n":"Region 20 Education Service Center","p":"K12 Partner","a":32.19,"b":35.0,"v":0.03},
+  {"n":"State of Texas","p":"Corporate","a":78.49,"b":84.0,"v":0.03},
+  {"n":"Edmonds Community College","p":"Transfer Partner","a":54.0,"b":58.0,"v":0.03},
+  {"n":"Tacoma Community College","p":"Transfer Partner","a":108.0,"b":115.0,"v":0.03},
+  {"n":"Southwestern College","p":"Transfer Partner","a":69.0,"b":74.0,"v":0.03},
+  {"n":"New York City Police Department","p":"Corporate","a":27.42,"b":30.0,"v":0.03},
+  {"n":"Delgado Community College","p":"Transfer Partner","a":84.0,"b":90.0,"v":0.03},
+  {"n":"Forsyth Technical Community College","p":"Transfer Partner","a":45.0,"b":48.0,"v":0.03},
+  {"n":"Metropolitan Community College - Blue River","p":"Transfer Partner","a":15.0,"b":16.0,"v":0.03},
+  {"n":"Metropolitan Community College - Online","p":"Transfer Partner","a":15.0,"b":16.0,"v":0.03},
+  {"n":"Riceville Community School District","p":"K12 Partner","a":5.55,"b":6.0,"v":0.03},
+  {"n":"Premier Health Care System, Inc.","p":"Healthcare","a":5.55,"b":6.0,"v":0.03},
+  {"n":"Bozeman School District","p":"K12 Partner","a":5.55,"b":6.0,"v":0.03},
+  {"n":"Arkansas Children\u2019s Hospital","p":"Healthcare","a":11.1,"b":12.0,"v":0.03},
+  {"n":"Richland School District (WA)","p":"K12 Partner","a":22.98,"b":25.0,"v":0.03},
+  {"n":"Riverside County Office of Education","p":"K12 Partner","a":182.04,"b":196.0,"v":0.03},
+  {"n":"Sheldon Independent School District","p":"K12 Partner","a":4.0,"b":5.0,"v":0.03},
+  {"n":"Kelly Services, Inc.","p":"Corporate","a":168.96,"b":182.0,"v":0.03},
+  {"n":"Cleveland State Community College (TN)","p":"Transfer Partner","a":42.0,"b":46.0,"v":0.03},
+  {"n":"City Colleges of Chicago - Malcolm X College","p":"Transfer Partner","a":37.0,"b":40.0,"v":0.03},
+  {"n":"Shoreline Community College","p":"Transfer Partner","a":53.0,"b":58.0,"v":0.03},
+  {"n":"Texas Health Resources","p":"Healthcare","a":49.51,"b":54.0,"v":0.03},
+  {"n":"Spokane Falls Community College","p":"Transfer Partner","a":71.0,"b":78.0,"v":0.03},
+  {"n":"Elevance Health","p":"Healthcare","a":146.43,"b":160.0,"v":0.03},
+  {"n":"South Texas College","p":"Transfer Partner","a":61.0,"b":67.0,"v":0.03},
+  {"n":"Vancouver Public Schools (WA) Correct","p":"K12 Partner","a":30.86,"b":34.0,"v":0.03},
+  {"n":"Community College of Philadelphia","p":"Transfer Partner","a":95.0,"b":104.0,"v":0.03},
+  {"n":"Harper College","p":"Transfer Partner","a":62.0,"b":68.0,"v":0.03},
+  {"n":"North Central Texas College","p":"Transfer Partner","a":81.0,"b":90.0,"v":0.03},
+  {"n":"Hudson Valley Community College","p":"Transfer Partner","a":29.0,"b":32.0,"v":0.03},
+  {"n":"Temecula Valley Unified School District","p":"K12 Partner","a":26.64,"b":30.0,"v":0.03},
+  {"n":"San Joaquin Delta College","p":"Transfer Partner","a":106.0,"b":118.0,"v":0.03},
+  {"n":"Kaiser Foundation Health Plan, Inc.","p":"Healthcare","a":241.78,"b":269.0,"v":0.03},
+  {"n":"Cochise College","p":"Transfer Partner","a":180.0,"b":200.0,"v":0.03},
+  {"n":"Lehigh Carbon Community College","p":"Transfer Partner","a":42.0,"b":47.0,"v":0.03},
+  {"n":"Office of Personnel Management (OPM)","p":"Corporate","a":928.63,"b":748.0,"v":0.03},
+  {"n":"Community College of Vermont","p":"Transfer Partner","a":18.0,"b":20.0,"v":0.03},
+  {"n":"South Puget Sound Community College","p":"Transfer Partner","a":85.0,"b":95.0,"v":0.03},
+  {"n":"State Center Community College District","p":"Transfer Partner","a":164.0,"b":183.0,"v":0.03},
+  {"n":"University of Iowa Hospitals and Clinics","p":"Healthcare","a":19.87,"b":23.0,"v":0.03},
+  {"n":"College of DuPage","p":"Transfer Partner","a":125.0,"b":140.0,"v":0.03},
+  {"n":"Wallace State Community College","p":"Transfer Partner","a":25.0,"b":28.0,"v":0.03},
+  {"n":"Zions Bancorporation","p":"Corporate","a":15.32,"b":18.0,"v":0.03},
+  {"n":"College of Southern Nevada","p":"Transfer Partner","a":410.0,"b":460.0,"v":0.03},
+  {"n":"Grand Rapids Community College","p":"Transfer Partner","a":57.0,"b":64.0,"v":0.03},
+  {"n":"Louisiana Delta Community College","p":"Transfer Partner","a":19.0,"b":22.0,"v":0.03},
+  {"n":"Kellogg Community College","p":"Transfer Partner","a":38.0,"b":43.0,"v":0.03},
+  {"n":"Tarrant County Hospital District","p":"Healthcare","a":14.32,"b":17.0,"v":0.03},
+  {"n":"Columbia State Community College","p":"Transfer Partner","a":71.0,"b":80.0,"v":0.03},
+  {"n":"Tyler Junior College","p":"Transfer Partner","a":84.0,"b":95.0,"v":0.03},
+  {"n":"Educational Service Center of Central Ohio","p":"K12 Partner","a":173.16,"b":196.0,"v":0.03},
+  {"n":"Victor Valley College","p":"Transfer Partner","a":98.0,"b":111.0,"v":0.03},
+  {"n":"Science Applications International Corp.","p":"Corporate","a":61.61,"b":70.0,"v":0.03},
+  {"n":"Volunteer State Community College","p":"Transfer Partner","a":92.0,"b":104.0,"v":0.03},
+  {"n":"Technical College System of Georgia","p":"Transfer Partner","a":912.0,"b":1032.0,"v":0.03},
+  {"n":"Spokane Public Schools","p":"K12 Partner","a":32.19,"b":37.0,"v":0.03},
+  {"n":"The Kroger Co.","p":"Corporate","a":123.02,"b":140.0,"v":0.03},
+  {"n":"Ozarks Technical Community College","p":"Transfer Partner","a":116.0,"b":132.0,"v":0.03},
+  {"n":"Snow College","p":"Transfer Partner","a":96.0,"b":110.0,"v":0.03},
+  {"n":"City of Fort Worth","p":"Corporate","a":7.66,"b":9.0,"v":0.03},
+  {"n":"Virginia Community College System","p":"Transfer Partner","a":1065.0,"b":1215.0,"v":0.03},
+  {"n":"Mukilteo School District (WA)","p":"K12 Partner","a":25.53,"b":30.0,"v":0.03},
+  {"n":"Stanly Community College","p":"Transfer Partner","a":14.0,"b":16.0,"v":0.03},
+  {"n":"Cuyamaca College","p":"Transfer Partner","a":21.0,"b":24.0,"v":0.03},
+  {"n":"Springfield Technical Community College","p":"Transfer Partner","a":14.0,"b":16.0,"v":0.03},
+  {"n":"BridgeValley Community and Technical College","p":"Transfer Partner","a":14.0,"b":16.0,"v":0.03},
+  {"n":"Veteran","p":"Military","a":10894.0,"b":11772.0,"v":0.03},
+  {"n":"Active Duty","p":"Military","a":7235.0,"b":7740.0,"v":0.03},
+  {"n":"California Community College Chancellor's Office","p":"Transfer Partner","a":0,"b":4514.0,"v":0.03},
+  {"n":"Rural Community College Alliance","p":"Transfer Partner","a":1127.0,"b":1251.0,"v":0.03},
+  {"n":"Salt Lake Community College","p":"Transfer Partner","a":658.0,"b":638.0,"v":0.03},
+  {"n":"HCA Healthcare, Inc.","p":"Healthcare","a":598.0,"b":622.0,"v":0.03},
+  {"n":"KFC Foundation","p":"Corporate","a":284.99,"b":12.0,"v":0.0},
+  {"n":"Sophia Learning, Llc.","p":"Transfer Partner","a":0,"b":1136.0},
+  {"n":"Kentucky Community and Technical College System","p":"Transfer Partner","a":0,"b":328.0},
+  {"n":"Rutherford County Schools","p":"K12 Partner","a":0,"b":138.0},
+  {"n":"Ivy Tech Community College - Indianapolis and Lawrence","p":"Transfer Partner","a":0,"b":111.0},
+  {"n":"Bergen Community College","p":"Transfer Partner","a":0,"b":100.0},
+  {"n":"Ivy Tech Community College - Northeast - Fort Wayne (Kosciusko County - Warsaw)","p":"Transfer Partner","a":0,"b":90.0},
+  {"n":"Tallahassee State College","p":"Transfer Partner","a":0,"b":70.0},
+  {"n":"Northwestern Medicine","p":"Healthcare","a":0,"b":59.0},
+  {"n":"Ivy Tech Community College - East Central (Muncie)","p":"Transfer Partner","a":0,"b":50.0},
+  {"n":"Teach For America","p":"K12 Partner","a":0,"b":49.0},
+  {"n":"Rock Valley College","p":"Transfer Partner","a":0,"b":47.0},
+  {"n":"Ivy Tech Community College - Southern Indiana (Sellersburg)","p":"Transfer Partner","a":0,"b":36.0},
+  {"n":"IDEA Public Schools","p":"K12 Partner","a":0,"b":35.0},
+  {"n":"Ivy Tech Community College - Wabash Valley (Terre Haute)","p":"Transfer Partner","a":0,"b":35.0},
+  {"n":"Arizona Charter Schools Association","p":"K12 Partner","a":0,"b":35.0},
+  {"n":"City Colleges of Chicago - Wilbur Wright College","p":"Transfer Partner","a":0,"b":34.0},
+  {"n":"SUNY Broome Community College","p":"Transfer Partner","a":0,"b":32.0},
+  {"n":"South Suburban College of Cook County","p":"Transfer Partner","a":0,"b":30.0},
+  {"n":"Ogden - Weber Technical College","p":"Transfer Partner","a":0,"b":30.0},
+  {"n":"Ocean County College","p":"Transfer Partner","a":0,"b":28.0},
+  {"n":"Ross Dress for Less","p":"Corporate","a":0,"b":28.0},
+  {"n":"Pecos-Barstow-Toyah Independent School District","p":"K12 Partner","a":0,"b":24.0},
+  {"n":"Yavapai College","p":"Transfer Partner","a":0,"b":23.0},
+  {"n":"Riverside Community College","p":"Transfer Partner","a":0,"b":23.0},
+  {"n":"BECU Financial Services, Inc.","p":"Corporate","a":0,"b":22.0},
+  {"n":"Region 9 Education Service Center","p":"K12 Partner","a":0,"b":21.0},
+  {"n":"Jack Henry and Assoc., Inc.","p":"Corporate","a":0,"b":18.0},
+  {"n":"H&R Block","p":"Corporate","a":0,"b":17.0},
+  {"n":"Ardent Health Partners, Llc.","p":"Healthcare","a":0,"b":15.0},
+  {"n":"ASRC Federal Holding Co., Llc.","p":"Corporate","a":0,"b":15.0},
+  {"n":"Blue Ridge Community College","p":"Transfer Partner","a":0,"b":15.0},
+  {"n":"Clatsop Community College","p":"Transfer Partner","a":0,"b":12.0},
+  {"n":"Community College of Beaver County","p":"Transfer Partner","a":0,"b":11.0},
+  {"n":"Campus","p":"Transfer Partner","a":0,"b":11.0},
+  {"n":"City of Corpus Christi","p":"Corporate","a":0,"b":11.0},
+  {"n":"Piedmont Community College","p":"Transfer Partner","a":0,"b":10.0},
+  {"n":"Mountain Gateway Community College","p":"Transfer Partner","a":0,"b":10.0},
+  {"n":"Ivy Tech Community College - Lake County (Crown Point, East Chicago, and Gary)","p":"Transfer Partner","a":0,"b":10.0},
+  {"n":"Columbia - Brazoria Independent School District","p":"K12 Partner","a":0,"b":9.0},
+  {"n":"ASA College","p":"Transfer Partner","a":0,"b":8.0},
+  {"n":"Kansas State Department of Education (KSDE)","p":"K12 Partner","a":0,"b":8.0},
+  {"n":"City of New Orleans","p":"Corporate","a":0,"b":8.0},
+  {"n":"Hope Chicago","p":"Corporate","a":0,"b":8.0},
+  {"n":"Hutto Independent School District","p":"K12 Partner","a":0,"b":7.0},
+  {"n":"Alfred State College","p":"Transfer Partner","a":0,"b":7.0},
+  {"n":"Sampson County Schools","p":"K12 Partner","a":0,"b":6.0},
+  {"n":"Marshall Medical Center","p":"Healthcare","a":0,"b":6.0},
+  {"n":"Adventist HealthCare, Inc.","p":"Healthcare","a":0,"b":6.0},
+  {"n":"Southcoast Health","p":"Healthcare","a":0,"b":5.0},
+  {"n":"LKQ Corporation","p":"Corporate","a":0,"b":5.0},
+  {"n":"Downers Grove GSD 58","p":"K12 Partner","a":0,"b":5.0},
+  {"n":"Countryside Academy","p":"K12 Partner","a":0,"b":5.0},
+  {"n":"Aurora BayCare Medical Center","p":"Healthcare","a":0,"b":5.0},
+  {"n":"Avita Health System","p":"Healthcare","a":0,"b":5.0},
+  {"n":"Hurst - Euless - Bedford Independent School District","p":"K12 Partner","a":0,"b":5.0},
+  {"n":"Del Valle Independent School District","p":"K12 Partner","a":0,"b":5.0},
+  {"n":"Southeast New Mexico College","p":"Transfer Partner","a":0,"b":4.0},
+  {"n":"The University of Vermont Alice Hyde Medical Center","p":"Healthcare","a":0,"b":3.0},
+  {"n":"Terra Haute Regional Hospital","p":"Healthcare","a":0,"b":3.0},
+  {"n":"SwedishAmerican Health System Corp.","p":"Healthcare","a":0,"b":3.0},
+  {"n":"Summit BHC","p":"Healthcare","a":0,"b":3.0},
+  {"n":"NineStar Connect","p":"Corporate","a":0,"b":3.0},
+  {"n":"Midland Health","p":"Healthcare","a":0,"b":3.0},
+  {"n":"Mercy Health System Corp.","p":"Healthcare","a":0,"b":3.0},
+  {"n":"McLeod Health","p":"Healthcare","a":0,"b":3.0},
+  {"n":"Mad River Community Hospital","p":"Healthcare","a":0,"b":3.0},
+  {"n":"Greece Central School District","p":"K12 Partner","a":0,"b":3.0},
+  {"n":"Detroit Public Schools Community District","p":"K12 Partner","a":0,"b":3.0},
+  {"n":"Bassett Healthcare Network","p":"Healthcare","a":0,"b":3.0},
+  {"n":"Altafiber","p":"Corporate","a":0,"b":3.0},
+  {"n":"River Valley Community School District","p":"K12 Partner","a":0,"b":3.0},
+  {"n":"Leavitt Group Enterprises, Inc.","p":"Corporate","a":0,"b":3.0},
+  {"n":"Wilder School District","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Valley Children's Healthcare","p":"Healthcare","a":0,"b":2.0},
+  {"n":"Temple Health","p":"Healthcare","a":0,"b":2.0},
+  {"n":"Stamford Independent School District","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Red River Technology Llc.","p":"Corporate","a":0,"b":2.0},
+  {"n":"Providence Sacred Heart Medical Center and Children's Hospital (WA)","p":"Healthcare","a":0,"b":2.0},
+  {"n":"Poplar Bluff Regional Medical Center","p":"Corporate","a":0,"b":2.0},
+  {"n":"Pine Rest Christian Mental Health Services","p":"Healthcare","a":0,"b":2.0},
+  {"n":"Ogden Preparatory Academy","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Mount AYR Community School District","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Mohawk Local School District (Ohio)","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"MercyOne","p":"Healthcare","a":0,"b":2.0},
+  {"n":"Long Valley Charter","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Logan - Magnolia Community School District","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Lenox Community School District","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Indiana Mills and Manufacturing, Inc.","p":"Corporate","a":0,"b":2.0},
+  {"n":"HILTON CENTRAL SCHOOL DISTRICT","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Great Jobs KC","p":"Corporate","a":0,"b":2.0},
+  {"n":"Evergreen Community of Johnson County","p":"Corporate","a":0,"b":2.0},
+  {"n":"Evadale Independent School District","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Ellis Medicine","p":"Healthcare","a":0,"b":2.0},
+  {"n":"Elizabethtown Community Hospital","p":"Healthcare","a":0,"b":2.0},
+  {"n":"Eide Bailly Llp.","p":"Corporate","a":0,"b":2.0},
+  {"n":"Distance Learning Systems","p":"Corporate","a":0,"b":2.0},
+  {"n":"DUP - DO Not Use Algona Community School District","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Commerce Bank","p":"Corporate","a":0,"b":2.0},
+  {"n":"City of Kent","p":"Corporate","a":0,"b":2.0},
+  {"n":"Central Community School District","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Carthage R - IX School District","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Arrow Senior Living Management, Llc.","p":"Healthcare","a":0,"b":2.0},
+  {"n":"Adams County School District 14","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"State of Missouri Department of Mental Health","p":"Healthcare","a":0,"b":2.0},
+  {"n":"Rio Hondo College","p":"Transfer Partner","a":0,"b":2.0},
+  {"n":"Lincoln County Schools","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"Hamilton County","p":"Corporate","a":0,"b":2.0},
+  {"n":"Brooks County School District","p":"K12 Partner","a":0,"b":2.0},
+  {"n":"iCan Dream Foundation, Inc.","p":"Corporate","a":1.11,"b":0.0},
+  {"n":"Zane State College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Ysleta DEL SUR Pueblo","p":"Corporate","a":0,"b":0.0},
+  {"n":"YWCA of Minneapolis","p":"Corporate","a":0,"b":0.0},
+  {"n":"XR Technologies, Inc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"WoodmenLife","p":"Corporate","a":0,"b":0.0},
+  {"n":"Woodbine Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Wood County Esc (Ohio)","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Women of Project Management, Llc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Wise Health System","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Wilson N. Jones Regional Medical Center","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Wilkes Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Whites Creek High","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"White Earth Tribal and Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Westwood Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Westpark Springs","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Western Association of Food Chains","p":"Corporate","a":0,"b":0.0},
+  {"n":"West Virginia University Potomac State College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"West Virginia University Parkersburg","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"West Virginia Community and Technical College System","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"West Tennessee Healthcare","p":"Corporate","a":0,"b":0.0},
+  {"n":"West Sioux Community School District","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"West Lyon Community School District","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"West Los Angeles College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Wayne Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Washington State College of Ohio","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Walters State Sevier County Campus","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Virginia Association of Free and Charitable Clinics","p":"Corporate","a":0,"b":0.0},
+  {"n":"Vincennes University","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Victoria College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Vets2Industry","p":"Military","a":0,"b":0.0},
+  {"n":"Veryable","p":"Corporate","a":1.11,"b":0.0},
+  {"n":"Valley Regional Medical Center (TX)","p":"Corporate","a":0,"b":0.0},
+  {"n":"Uscc Services, Llc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Urban League of Metropolitan St. Louis","p":"Corporate","a":1.11,"b":0.0},
+  {"n":"Urban Dove","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"University of Rio Grande and Rio Grande Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"University of California, Santa Barbara","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"UP Partnership","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"UMC Health System","p":"Healthcare","a":0,"b":0.0},
+  {"n":"UK HealthCare","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Tumwater School District (WA)","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Treynor Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"The One Iota Foundation, Inc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"The J.F. Ingram State Technical College Foundation (Inc.)","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"The Equity Institute","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"The College of Health Care Professions","p":"Healthcare","a":0,"b":0.0},
+  {"n":"The Belanger School of Nursing","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Texas Southmost College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Texas Health Presbyterian Hospital Rockwall","p":"Corporate","a":1.11,"b":0.0},
+  {"n":"Terra State Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Tennessee Educators of Color Alliance","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Syracuse City Corp.","p":"Corporate","a":0,"b":0.0},
+  {"n":"State Fair Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Standard Power","p":"Corporate","a":0,"b":0.0},
+  {"n":"St. Vincent Kokomo","p":"Corporate","a":0,"b":0.0},
+  {"n":"St. Vincent Carmel Hospital","p":"Healthcare","a":2.22,"b":0.0},
+  {"n":"St. Vincent Anderson","p":"Corporate","a":0,"b":0.0},
+  {"n":"St. Philip's College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"St. Michael's Army","p":"Corporate","a":0,"b":0.0},
+  {"n":"St. Josephs Hospital (Co.)","p":"Healthcare","a":0,"b":0.0},
+  {"n":"St. Francis Medical Center Missouri","p":"Healthcare","a":2.22,"b":0.0},
+  {"n":"St. Anthony Regional Hospital","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Springville - Griffith Institute","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Spencer Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Southwest University at EL Paso","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Southwest Schools","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Southwest Independent School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Southern State Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"South Tama County","p":"Corporate","a":0,"b":0.0},
+  {"n":"South O\u2019 Brien Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"South Dakota Board of Technical Education","p":"Corporate","a":0,"b":0.0},
+  {"n":"Sioux Center Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Single Moms Society","p":"Corporate","a":0,"b":0.0},
+  {"n":"Sidney Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Sherburne Northern Wright Special Education Cooperative, MN","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Sheldon Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Seminole Hospital District","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Santa FE Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Sandy Valley Local Schools Ohio","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"San Joaquin Valley College - Fresno","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Saginaw S.T.E.M.","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Rutland Regional Medical Center","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Rush Enterprises, Inc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Roosevelt School District No. 66","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"Rock Valley Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Rock Central","p":"Corporate","a":0,"b":0.0},
+  {"n":"Riverside Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"River's Edge Hospital and Clinic","p":"Corporate","a":0,"b":0.0},
+  {"n":"Riesel Independent School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Richmond Promise, Inc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Richmond Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Richfield Public School Academy","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"REACH ACADEMY CHARTER SCHOOL","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Providence Mount Carmel Hospital","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Proven PCI, Inc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Prairie Band Casino and Resort","p":"Corporate","a":0,"b":0.0},
+  {"n":"Pleasanton Unified School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Pinellas County Schools (FL)","p":"K12 Partner","a":2.11,"b":0.0},
+  {"n":"Peninsula College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Palo Alto College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"PSN Services, Llc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"PROG Foundation","p":"Corporate","a":0,"b":0.0},
+  {"n":"Ozarks Community Health System","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Osnaburg Local School District","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"Osage\u00a0Community School District","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"Orting School District #344 (WA)","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Operation Socrates Inc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Operation Breakthrough","p":"Corporate","a":0,"b":0.0},
+  {"n":"OneMain Financial","p":"Corporate","a":1.11,"b":0.0},
+  {"n":"Olathe Chamber of Commerce","p":"Corporate","a":0,"b":0.0},
+  {"n":"Okoboji Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Ohio Living Home Health and Hospice","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Odessa College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"OCLC, Inc. (Online Computer Library Center)","p":"Corporate","a":0,"b":0.0},
+  {"n":"OCH Health System","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Npower","p":"Corporate","a":0,"b":0.0},
+  {"n":"Northwest Vista College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Northwest State Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Northwest Mississippi Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Northwest College Wyoming","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Northeast State Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Northeast Regional Medical Center","p":"Corporate","a":0,"b":0.0},
+  {"n":"Northeast Lakeview College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Northeast Community School District","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"NorthShore University HealthSystem","p":"Healthcare","a":0,"b":0.0},
+  {"n":"North White School Building Corp.","p":"K12 Partner","a":3.33,"b":0.0},
+  {"n":"North Point Educational Service Center","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"North Central State College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"North Carolina Association For Public Charter Schools","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"North Canyon Medical Center","p":"Corporate","a":1.11,"b":0.0},
+  {"n":"Nodaway Valley Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Newton - Conover City Schools","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Newport News Public Schools (VA)","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Newaygo County RESA","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"New York City Department of Corrections","p":"Corporate","a":0,"b":0.0},
+  {"n":"New Story Schools","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Nellis Air Force Base","p":"Military","a":0,"b":0.0},
+  {"n":"NW Indian College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"NIX Health Care System","p":"Corporate","a":0,"b":0.0},
+  {"n":"NBMBAA - Charlotte Chapter","p":"Corporate","a":0,"b":0.0},
+  {"n":"MultiCare Valley Hospital (WA)","p":"Healthcare","a":0,"b":0.0},
+  {"n":"MultiCare Capital Medical Center","p":"Corporate","a":2.22,"b":0.0},
+  {"n":"Moorpark College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Monument Health","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Mohave Electric Co. - Operative Inc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Moberly Regional Medical Center","p":"Corporate","a":0,"b":0.0},
+  {"n":"Moberly Area Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Missouri Veterans of Foreign Wars","p":"Military","a":0,"b":0.0},
+  {"n":"Missouri Valley Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Minnesota Rural Electric Association","p":"Corporate","a":0,"b":0.0},
+  {"n":"Mineral Area College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Metropolitan Community College - Longview","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Metropolitan Community College - Business and Technology","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Methodist Richardson Medical Center (TX)","p":"Corporate","a":3.33,"b":0.0},
+  {"n":"Mercyhealth Hospital and Trauma Center - Janesville","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Mercy Lebanon","p":"Corporate","a":0,"b":0.0},
+  {"n":"Medical Center Health System","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Mary Free Bed Rehabilitation","p":"Healthcare","a":4.44,"b":0.0},
+  {"n":"Maritz Holdings Inc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Mankato Clinic, Ltd.","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Mandl School - The College of Allied Health","p":"Healthcare","a":0,"b":0.0},
+  {"n":"MOC - Floyd Valley Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Lynn Public Schools","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Lutheran Hospital (IN)","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Los Angeles Valley College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Los Angeles Pierce College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Legacy Community Health","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Lead The Way Learning Academy","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Langley Air Force Base Education Center","p":"Military","a":0,"b":0.0},
+  {"n":"Knoxville Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Kingsley - Pierson Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Kindred Hospitals","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Kansas City Metropolitan Community Colleges Building Corp.","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Kankakee Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Kaiser Permanente Washington","p":"Healthcare","a":1.11,"b":0.0},
+  {"n":"Joint Base Anacostia - Bolling Education Center","p":"Military","a":2.0,"b":0.0},
+  {"n":"Johnston Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Johns Hopkins Hospital","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Jefferson College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"James A. Rhodes State College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Jackson College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"JT4, Llc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Ivy Tech Community College - Valparaiso and Michigan City","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Ivy Tech Community College - Lafayette","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Ivy Tech Community College - Kokomo","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Ivy Tech Community College - Columbus","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Ivy Tech Community College - Bloomington","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Interapt","p":"Corporate","a":0,"b":0.0},
+  {"n":"Independence Chamber of Commerce","p":"Corporate","a":0,"b":0.0},
+  {"n":"Illinois Tollway","p":"Corporate","a":0,"b":0.0},
+  {"n":"Illinois Primary Health Care Association","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Illinois Association of Regional Superintendents of Schools (IARSS)","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"IKM - Manning Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Hyde County Schools","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Hondros College of Business","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Hocking College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Hillman Community Schools","p":"K12 Partner","a":2.22,"b":0.0},
+  {"n":"Hawai\u2019I Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Hartley - Melvin - Sanborn Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Harrison County Hospital","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Hardee County School District","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"Hancock County Esc (Ohio)","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Hacemos - Erg","p":"Corporate","a":0,"b":0.0},
+  {"n":"HMG Healthcare, Llc.","p":"Healthcare","a":0,"b":0.0},
+  {"n":"HARDING CHARTER PREPARATORY HS","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Guthrie Clinic","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Griswold Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Greene County Community School District","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"Grand Canyon State Electric Cooperative Association, Inc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Goodwill of Central and Southern Indiana, Inc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Goodwill Industries of San Antonio","p":"Corporate","a":0,"b":0.0},
+  {"n":"Good Samaritan Medical Center","p":"Corporate","a":0,"b":0.0},
+  {"n":"Gifford Medical Center, Inc.","p":"Healthcare","a":0,"b":0.0},
+  {"n":"George - Little Rock Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Gem Prep Schools","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Gem Innovation Schools","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"Galveston College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"GO Foundation","p":"Corporate","a":0,"b":0.0},
+  {"n":"Froedtert Health, Inc.","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Fremont - Mills Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Frank Phillips College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Fort Lee Army Education Center (VA)","p":"Military","a":0,"b":0.0},
+  {"n":"Fort Indiantown Gap National Guard Training Center","p":"Military","a":0,"b":0.0},
+  {"n":"Fort Eustis Army Education Center","p":"Military","a":0,"b":0.0},
+  {"n":"Fort Detrick Army Base","p":"Military","a":1.0,"b":0.0},
+  {"n":"First Business Bank","p":"Corporate","a":1.11,"b":0.0},
+  {"n":"Family Health West","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Fairfield Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Extra Space Storage","p":"Corporate","a":0,"b":0.0},
+  {"n":"Exira - Elk Horn - Kimbalton Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Epic Charter Schools","p":"K12 Partner","a":1.0,"b":0.0},
+  {"n":"Enloe Medical Center","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Emmetsburg Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Emergence Health Network Veterans One Stop Center","p":"Military","a":0,"b":0.0},
+  {"n":"Eldorado Community Unit School district","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Edwell Education","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Educational Services Inc. (ESI)","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Educational Service Center of Lorain County (Ohio)","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Edison State Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Edgewood Colesburg Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Edcor Data Services Llc.","p":"Corporate","a":0,"b":0.0},
+  {"n":"East Mills Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"East Central Province of Kappa Alpha PSI","p":"Corporate","a":0,"b":0.0},
+  {"n":"East Central College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"EL Toro","p":"Corporate","a":2.22,"b":0.0},
+  {"n":"Durham Technical Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Duplicate - DO Not Use Roosevelt School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Duly Health and Care","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Dukes Memorial Hospital (IN)","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Dripping Springs Independent School District","p":"K12 Partner","a":5.44,"b":0.0},
+  {"n":"Dohn Community High","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Digital Analytics Association","p":"Corporate","a":0,"b":0.0},
+  {"n":"Diablo Valley College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Defense Authorization University","p":"Corporate","a":0,"b":0.0},
+  {"n":"Decatur County Memorial Hospital","p":"Healthcare","a":3.33,"b":0.0},
+  {"n":"DUP-DO NOT USE Harlan Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"DRCOG","p":"Corporate","a":0,"b":0.0},
+  {"n":"DOD Training Centers","p":"Corporate","a":0,"b":0.0},
+  {"n":"County of Jefferson","p":"Corporate","a":0,"b":0.0},
+  {"n":"County of EL Paso","p":"Corporate","a":0,"b":0.0},
+  {"n":"Coshocton City School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Copa Health","p":"Healthcare","a":1.11,"b":0.0},
+  {"n":"Coon Rapids Bayard Community School District","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"Compass Charter Schools","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Community Health Network Howard","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Community College of The Air Force (CCAF)","p":"Military","a":0,"b":0.0},
+  {"n":"Colorado Mountain College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"College of The Mainland","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Clear Lake Community School District","p":"K12 Partner","a":2.22,"b":0.0},
+  {"n":"Clarios","p":"Corporate","a":0,"b":0.0},
+  {"n":"City of Wentzville (MO)","p":"Corporate","a":1.11,"b":0.0},
+  {"n":"City of Virginia Beach","p":"Corporate","a":4.44,"b":0.0},
+  {"n":"City of Sunland Park","p":"Corporate","a":0,"b":0.0},
+  {"n":"City of Pittsburgh","p":"Corporate","a":1.11,"b":0.0},
+  {"n":"City of Millcreek","p":"Corporate","a":0,"b":0.0},
+  {"n":"City of Independence Missouri","p":"Corporate","a":0,"b":0.0},
+  {"n":"City of Grand Rapids","p":"Corporate","a":0,"b":0.0},
+  {"n":"City of Goodyear","p":"Corporate","a":0,"b":0.0},
+  {"n":"City of Aurora","p":"Corporate","a":2.22,"b":0.0},
+  {"n":"Citrus College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Christus Santa Rosa Hospital - San Marcos","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Christus Santa Rosa Hospital - New Braunfels","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Christus Santa Rosa - Medical Center","p":"Corporate","a":0,"b":0.0},
+  {"n":"Children's Discovery Center","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Chicagoland Chamber of Commerce","p":"Corporate","a":0,"b":0.0},
+  {"n":"Chesapeake Regional Healthcare","p":"Healthcare","a":2.22,"b":0.0},
+  {"n":"Cherokee Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Centralia College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Central Vermont Medical Center","p":"Healthcare","a":4.44,"b":0.0},
+  {"n":"Central Ohio Technical College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Central Lyon Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Central Carolina Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Cayuga Health System, Inc.","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Carteret Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Carl Buddig and Co.","p":"Corporate","a":0,"b":0.0},
+  {"n":"Canton - Potsdam Hospital","p":"Healthcare","a":1.11,"b":0.0},
+  {"n":"Cam Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Calamus Wheatland Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"CHP Schools (formerly Aspira Inc. of Pennsylvania)","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Burlington School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Buffalo Public Schools","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Brunswick Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Bristol Farms","p":"Corporate","a":2.22,"b":0.0},
+  {"n":"Bridgeport Public Schools","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Bridge My Return","p":"Corporate","a":0,"b":0.0},
+  {"n":"Boyden - Hull Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Bowie Independent School District","p":"K12 Partner","a":1.11,"b":0.0},
+  {"n":"Boston Medical Center-South Corporation","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Boston Medical Center-Brighton Corporation","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Big Bend Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Belmont Charter Network","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Barstow Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Audubon Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Astor Services For Children and Families","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Ashe County Schools","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Arkansas Northeastern College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Apollo Information Systems Corp.","p":"Corporate","a":0,"b":0.0},
+  {"n":"American Baptist Homes of The Midwest","p":"Healthcare","a":0,"b":0.0},
+  {"n":"America's Promise Alliance","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Alvin Community College","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Alpena - Montmorency - Alcona Educational Service District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Allegany College of Maryland","p":"Transfer Partner","a":0,"b":0.0},
+  {"n":"Algona Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"Alcona Community Schools","p":"K12 Partner","a":7.44,"b":0.0},
+  {"n":"Air Force - Andrews AFB","p":"Military","a":0,"b":0.0},
+  {"n":"Advocate Trinity Hospital","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Advocate South Suburban Hospital","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Advocate Illinois Masonic Medical Center","p":"Healthcare","a":1.11,"b":0.0},
+  {"n":"Advocate Good Shephard Hospital","p":"Healthcare","a":0,"b":0.0},
+  {"n":"Advocate Good Samaritan Hospital","p":"Healthcare","a":0,"b":0.0},
+  {"n":"AHSTW Community School District","p":"K12 Partner","a":0,"b":0.0},
+  {"n":"ACI Learning","p":"Corporate","a":1.11,"b":0.0}
+];
+// Defaults per partner type. g is now a per-portfolio object.
+const D = {
+  'Corporate':        { v: 40,  e: 0.01, g: { ap: 0.10, gp: 0.10, mp: 0.10, wp: 0.10 } },
+  'Healthcare':       { v: 40,  e: 0.08, g: { ap: 0.10, gp: 0.10, mp: 0.10, wp: 0.10 } },
+  'K12 Partner':      { v: 20,  e: 0.05, g: { ap: 0.10, gp: 0.10, mp: 0.10, wp: 0.10 } },
+  'Transfer Partner': { v: 100, e: 0.08, g: { ap: 0.10, gp: 0.10, mp: 0.10, wp: 0.10 } },
+  'Military':         { v: 100, e: 0.00, g: { ap: 0.10, gp: 0.10, mp: 0.10, wp: 0.10 } }
+};
+const PT = ['Corporate','Healthcare','K12 Partner','Transfer Partner','Military'];
+const S = { pt: 'Corporate', ov: {}, search: '', sort: 'vd' };
+// Deep-copy default settings (g is a nested object now).
+const cloneSettings = s => ({ v: s.v, e: s.e, g: Object.assign({}, s.g) });
+const gs = pt => S.ov[pt] || cloneSettings(D[pt]);
+const ss = (pt, s) => { S.ov[pt] = cloneSettings(s); };
+
+function fmt(n) {
+  if (!isFinite(n)) return '—';
+  return Math.round(n).toLocaleString('en-US', {maximumFractionDigits: 0});
+}
+function fmtVel(v) {
+  if (!isFinite(v)) return 'New';
+  var sign = v > 0 ? '+' : '';
+  return sign + (v * 100).toFixed(1) + '%';
+}
+function esc(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+const tabsEl = document.getElementById('tabs');
+PT.forEach(pt => {
+  const b = document.createElement('button');
+  b.className = 'tab-btn';
+  b.textContent = pt;
+  b.dataset.pt = pt;
+  b.addEventListener('click', () => { S.pt = pt; sync(); render(); });
+  tabsEl.appendChild(b);
+});
+
+
+const vS  = document.getElementById('volSlider');
+const eS  = document.getElementById('velSlider');
+const vN  = document.getElementById('volNum');
+const eN  = document.getElementById('velNum');
+const grAp = document.getElementById('grAp');
+const grGp = document.getElementById('grGp');
+const grMp = document.getElementById('grMp');
+const grWp = document.getElementById('grWp');
+const GR_INPUTS = { ap: grAp, gp: grGp, mp: grMp, wp: grWp };
+// Volume and Velocity have slider+number pairs; growth rates are number-only.
+const PAIRS = [[vS, vN], [eS, eN]];
+const ctrlPanel = document.getElementById('controlsPanel');
+
+function rd() {
+  return {
+    v: Number(vS.value),
+    e: Number(eS.value) / 100,
+    g: {
+      ap: Number(grAp.value || 0) / 100,
+      gp: Number(grGp.value || 0) / 100,
+      mp: Number(grMp.value || 0) / 100,
+      wp: Number(grWp.value || 0) / 100
+    }
+  };
+}
+function setControls(s) {
+  vS.value = vN.value = s.v;
+  eS.value = eN.value = Math.round(s.e * 100);
+  grAp.value = Math.round(s.g.ap * 100);
+  grGp.value = Math.round(s.g.gp * 100);
+  grMp.value = Math.round(s.g.mp * 100);
+  grWp.value = Math.round(s.g.wp * 100);
+}
+function sync() {
+  setControls(gs(S.pt));
+}
+function clampToSlider(slider, num) {
+  const v = parseInt(num.value, 10);
+  if (isNaN(v)) return false;
+  const min = Number(slider.min), max = Number(slider.max);
+  slider.value = Math.max(min, Math.min(max, v));
+  return true;
+}
+
+PAIRS.forEach(([s, n]) => {
+  // Slider drives number
+  s.addEventListener('input', () => {
+    n.value = s.value;
+    ss(S.pt, rd()); render();
+  });
+  // Number drives slider (live, but only when input parses)
+  n.addEventListener('input', () => {
+    if (!clampToSlider(s, n)) return;
+    ss(S.pt, rd()); render();
+  });
+  // Final clamp on blur / Enter
+  n.addEventListener('change', () => {
+    const v = parseInt(n.value, 10);
+    const min = Number(s.min), max = Number(s.max);
+    if (isNaN(v)) {
+      n.value = s.value;
+    } else {
+      const clamped = Math.max(min, Math.min(max, v));
+      n.value = clamped; s.value = clamped;
+    }
+    ss(S.pt, rd()); render();
+  });
+});
+
+// Per-portfolio growth-rate inputs (number-only, no slider pair).
+Object.values(GR_INPUTS).forEach(n => {
+  n.addEventListener('input', () => {
+    const v = parseInt(n.value, 10);
+    if (isNaN(v)) return;  // wait for valid input
+    const min = Number(n.min), max = Number(n.max);
+    if (v < min || v > max) return;  // skip until in range
+    ss(S.pt, rd()); render();
+  });
+  n.addEventListener('change', () => {
+    const v = parseInt(n.value, 10);
+    const min = Number(n.min), max = Number(n.max);
+    if (isNaN(v)) {
+      // Restore from current state
+      const s = gs(S.pt);
+      const key = n.id.slice(2).toLowerCase();
+      n.value = Math.round(s.g[key] * 100);
+    } else {
+      n.value = Math.max(min, Math.min(max, v));
+    }
+    ss(S.pt, rd()); render();
+  });
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  delete S.ov[S.pt];
+  sync(); render();
+});
+document.getElementById('searchBox').addEventListener('input', e => {
+  S.search = e.target.value.toLowerCase(); render();
+});
+document.getElementById('sortBy').addEventListener('change', e => { S.sort = e.target.value; render(); });
+
+function classify(b, vel, volTrig, velTrig) {
+  var hv = b > volTrig;
+  var hl = vel > velTrig;
+  if (hv && hl) return 'AP';   // High Volume + High Velocity (was EP)
+  if (!hv && hl) return 'GP';  // Low Volume + High Velocity
+  if (hv && !hl) return 'MP';  // High Volume + Low Velocity
+  return 'WP';                  // Low Volume + Low Velocity
+}
+
+function render() {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    if (b.dataset.pt === S.pt) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+  let pool = A.filter(a => a.p === S.pt);
+  if (S.search) pool = pool.filter(a => a.n.toLowerCase().includes(S.search));
+
+  const s = gs(S.pt);
+  const en = pool.map(a => {
+    const isNew = a.a === 0 && a.b > 0;
+    // Prefer file-supplied velocity; fall back to (FY26-FY25)/FY25.
+    // For new accounts with no file velocity, treat as Infinity (always High Velocity).
+    let vel;
+    if (typeof a.v === 'number') vel = a.v;
+    else if (a.a > 0) vel = (a.b - a.a) / a.a;
+    else if (a.b > 0) vel = Infinity;
+    else vel = 0;
+    // New accounts always route to GP regardless of volume.
+    const port = isNew ? 'GP' : classify(a.b, vel, s.v, s.e);
+    // Apply that portfolio's growth rate.
+    const growth = s.g[port.toLowerCase()];
+    const f = a.b * (1 + growth);
+    return Object.assign({}, a, { v: vel, port: port, f: f, isNew: isNew });
+  });
+
+  const srt = {
+    vd: (x,y) => {
+      if (!isFinite(x.v) && !isFinite(y.v)) return 0;
+      if (!isFinite(x.v)) return -1;
+      if (!isFinite(y.v)) return 1;
+      return y.v - x.v;
+    },
+    va: (x,y) => {
+      if (!isFinite(x.v) && !isFinite(y.v)) return 0;
+      if (!isFinite(x.v)) return 1;
+      if (!isFinite(y.v)) return -1;
+      return x.v - y.v;
+    },
+    td: (x,y) => y.f - x.f,
+    ta: (x,y) => x.f - y.f,
+    na: (x,y) => x.n.localeCompare(y.n)
+  };
+  en.sort(srt[S.sort]);
+
+  const ap = en.filter(x => x.port === 'AP');
+  const gp = en.filter(x => x.port === 'GP');
+  const mp = en.filter(x => x.port === 'MP');
+  const wp = en.filter(x => x.port === 'WP');
+  // EP is the rollup: every account that is NOT in WP.
+  const epRoll = en.filter(x => x.port !== 'WP');
+
+  const t26 = en.reduce((x,a) => x + a.b, 0);
+  const t27 = en.reduce((x,a) => x + a.f, 0);
+  const a26 = ap.reduce((x,a) => x + a.b, 0);
+  const a27 = ap.reduce((x,a) => x + a.f, 0);
+  const g27 = gp.reduce((x,a) => x + a.f, 0);
+  const m27 = mp.reduce((x,a) => x + a.f, 0);
+  const w27 = wp.reduce((x,a) => x + a.f, 0);
+  const ep26 = epRoll.reduce((x,a) => x + a.b, 0);
+  const ep27 = epRoll.reduce((x,a) => x + a.f, 0);
+
+  document.getElementById('kpiAccounts').textContent = en.length.toLocaleString();
+  document.getElementById('kpiSplit').textContent =
+    ap.length + ' AP / ' + gp.length + ' GP / ' + mp.length + ' MP / ' + wp.length + ' WP';
+  document.getElementById('kpiFy26').textContent = fmt(t26);
+  document.getElementById('kpiFy27').textContent = fmt(t27);
+  document.getElementById('kpiGrowth').textContent = t26 > 0
+    ? (((t27/t26)-1)*100).toFixed(1) + '% growth' : '—';
+  document.getElementById('kpiEpShare').textContent = t26 > 0
+    ? Math.round((ep26/t26)*100) + '%' : '—';
+
+  // EP rollup banner
+  document.getElementById('epRollCount').textContent = epRoll.length;
+  document.getElementById('epRollFy26').textContent = fmt(ep26);
+  document.getElementById('epRollFy27').textContent = fmt(ep27);
+  // Blended growth across the EP rollup (volume-weighted: total FY27 / total FY26 - 1).
+  document.getElementById('epRollGrowth').textContent = ep26 > 0
+    ? '+' + (((ep27/ep26) - 1) * 100).toFixed(1) + '%' : '—';
+
+  document.getElementById('apCount').textContent = ap.length;
+  document.getElementById('gpCount').textContent = gp.length;
+  document.getElementById('mpCount').textContent = mp.length;
+  document.getElementById('wpCount').textContent = wp.length;
+  document.getElementById('apTotal').textContent = fmt(a27) + ' FY27 target';
+  document.getElementById('gpTotal').textContent = fmt(g27) + ' FY27 target';
+  document.getElementById('mpTotal').textContent = fmt(m27) + ' FY27 target';
+  document.getElementById('wpTotal').textContent = fmt(w27) + ' FY27 target';
+  document.getElementById('resultsCount').textContent = en.length;
+
+  rL('apList', ap, 'ap');
+  rL('gpList', gp, 'gp');
+  rL('mpList', mp, 'mp');
+  rL('wpList', wp, 'wp');
+}
+
+function rL(id, items, kind) {
+  const el = document.getElementById(id);
+  if (!items.length) {
+    el.innerHTML = '<div class="empty">No accounts in this portfolio.</div>';
+    return;
+  }
+  const parts = [];
+  for (var i = 0; i < items.length; i++) {
+    var a = items[i];
+    var vcls = !isFinite(a.v) ? 'vel-new' : (a.v > 0 ? 'vel-pos' : a.v < 0 ? 'vel-neg' : 'vel-neutral');
+    parts.push(
+      '<div class="acct-card">' +
+        '<div class="acct-top">' +
+          '<div class="min-w-0">' +
+            '<div class="acct-name-row">' +
+              '<div class="acct-name" title="' + esc(a.n) + '">' + (esc(a.n) || '(unnamed)') + '</div>' +
+              (a.isNew ? '<span class="acct-new-badge">New</span>' : '') +
+            '</div>' +
+            '<div class="acct-meta">' +
+              '<span>' + esc(a.p) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="acct-target">' +
+            '<div class="acct-target-value">' + fmt(a.f) + '</div>' +
+            '<div class="acct-target-label">FY27 target</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="acct-bottom">' +
+          '<div class="acct-fy">FY25 <strong>' + fmt(a.a) + '</strong><span class="arrow">&rarr;</span>FY26 <strong>' + fmt(a.b) + '</strong></div>' +
+          '<div class="acct-velocity ' + vcls + '">' + fmtVel(a.v) + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+  el.innerHTML = parts.join('');
+}
+
+sync();
+render();
+</script>
+</body>
+</html>
